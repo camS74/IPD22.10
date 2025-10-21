@@ -1,0 +1,302 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250926130658
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -NoProfile -NoExit -ExecutionPolicy Bypass -File D:\IPD16.9 (crusor)\IPD26.9\Upload-To-GitHub.ps1
+Process ID: 5124
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD16.9 (crusor)\IPD26.9
+[ OK ] Commit identity: Cam <you@example.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'upload-to-github.ps1', LF will be replaced by CRLF the next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 10, done.
+Counting objects: 100% (10/10), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 1.34 KiB | 343.00 KiB/s, done.
+Total 6 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (3/3), completed with 2 local objects.
+To https://github.com/camS74/IPD26.9.git
+   ea0386e..ba70603  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20250926130704
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20251005155501
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -NoProfile -NoExit -ExecutionPolicy Bypass -File D:\IPD16.9 (crusor)\IPD26.9\Upload-To-GitHub.ps1
+Process ID: 9748
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD16.9 (crusor)\IPD26.9
+[ OK ] Commit identity: Cam <you@example.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/reports/PerformanceDashboard.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupsKgsTable.css', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupsKgsTable.js', LF will be replaced by CRLF the next
+time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 17, done.
+Counting objects: 100% (17/17), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (10/10), done.
+Writing objects: 100% (10/10), 5.42 KiB | 346.00 KiB/s, done.
+Total 10 (delta 5), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
+To https://github.com/camS74/IPD26.9.git
+   ba70603..ed8ff75  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251005155511
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20251005155803
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -NoProfile -NoExit -ExecutionPolicy Bypass -File D:\IPD16.9 (crusor)\IPD26.9\Upload-To-GitHub.ps1
+Process ID: 18272
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD16.9 (crusor)\IPD26.9
+[ OK ] Commit identity: Cam <you@example.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/reports/ProductGroupsKgsTable.css', LF will be replaced by CRLF the next
+ time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (8/8), 1.69 KiB | 865.00 KiB/s, done.
+Total 8 (delta 5), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
+To https://github.com/camS74/IPD26.9.git
+   ed8ff75..a4ada07  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251005155808
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20251008083326
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -NoProfile -NoExit -ExecutionPolicy Bypass -File D:\IPD16.9 (crusor)\IPD26.9\Upload-To-GitHub.ps1
+Process ID: 29692
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD16.9 (crusor)\IPD26.9
+[ OK ] Commit identity: Cam <you@example.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'server/check-columns.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/check-narek-data.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/check-narek-simple.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/check-tables.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/CustomerPerformanceAnalysis.css', LF will be replaced by CRLF
+the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/CustomerPerformanceAnalysis.js', LF will be replaced by CRLF t
+he next time Git touches it
+warning: in the working copy of 'src/components/reports/CustomerPerformanceAnalysis.css', LF will be replaced by CRLF th
+e next time Git touches it
+warning: in the working copy of 'src/components/reports/CustomerPerformanceAnalysis.js', LF will be replaced by CRLF the
+ next time Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupKeyFacts.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupKeyFacts_v4_catchup.js', LF will be replaced by CRLF
+ the next time Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupsAmountTable.css', LF will be replaced by CRLF the n
+ext time Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupsAmountTable.js', LF will be replaced by CRLF the ne
+xt time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251008083335
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20251008135146
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -NoProfile -NoExit -ExecutionPolicy Bypass -File D:\IPD16.9 (crusor)\IPD26.9\Upload-To-GitHub.ps1
+Process ID: 23840
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD16.9 (crusor)\IPD26.9
+[ OK ] Commit identity: Cam <you@example.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/dashboard/SalesBySaleRepTable.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/reports/PerformanceDashboard.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupsAmountTable.js', LF will be replaced by CRLF the ne
+xt time Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupsKgsTable.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/reports/CustomersKgsTable.js', LF will be replaced by CRLF the next time
+ Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Delta compression using up to 8 threads
+Compressing objects: 100% (14/14), done.
+Writing objects: 100% (14/14), 9.69 KiB | 1.08 MiB/s, done.
+Total 14 (delta 10), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (10/10), completed with 10 local objects.
+To https://github.com/camS74/IPD26.9.git
+   9aa7b02..678825a  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251008135153
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20251008160644
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -NoProfile -NoExit -ExecutionPolicy Bypass -File D:\IPD16.9 (crusor)\IPD26.9\Upload-To-GitHub.ps1
+Process ID: 4092
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD16.9 (crusor)\IPD26.9
+[ OK ] Commit identity: Cam <you@example.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesBySaleRepTable.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/dashboard/TabsComponent.js', LF will be replaced by CRLF the next time G
+it touches it
+warning: in the working copy of 'src/components/reports/CustomersKgsTable.js', LF will be replaced by CRLF the next time
+ Git touches it
+warning: in the working copy of 'src/components/reports/ExecutiveSummary.js', LF will be replaced by CRLF the next time
+Git touches it
+warning: in the working copy of 'src/components/reports/PerformanceDashboard.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/SalesRepReport.js', LF will be replaced by CRLF the next time Gi
+t touches it
+warning: in the working copy of 'src/components/reports/TopCustomersTable.js', LF will be replaced by CRLF the next time
+ Git touches it
+warning: in the working copy of 'src/components/reports/CustomerKeyFactsNew.js', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'test-results/.last-run.json', LF will be replaced by CRLF the next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251008160653
+**********************
+**********************
+Windows PowerShell transcript start
+Start time: 20251009175923
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: powershell -ExecutionPolicy Bypass -File upload-to-github.ps1
+Process ID: 36692
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD 9.10
+[INFO] Initializing git repository...
+
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+git : fatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.
+At D:\IPD 9.10\upload-to-github.ps1:62 char:17
++     $current = (git rev-parse --abbrev-ref HEAD) 2>$null
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: ambiguou...e working tree.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'

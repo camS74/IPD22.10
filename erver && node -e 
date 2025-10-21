@@ -1,0 +1,220 @@
+import React, { useState, useEffect } from 'react';
+import { useExcelData } from '../../contexts/ExcelDataContext';
+import { useSalesData } from '../../contexts/SalesDataContext';
+import { useFilter } from '../../contexts/FilterContext';
+import { computeCellValue } from '../../utils/computeCellValue';
+import './KPIExecutiveSummary.css';
+import { getRegionForCountry } from './CountryReference';
+
+const divisionNames = {
+  'FP': 'Flexible Packaging',
+  'SB': 'Shopping Bags',
+  'TF': 'Thermoforming Products',
+  'HCM': 'Harwal Container Manufacturing'
+};
+
+// Country name patterns for fuzzy matching
+const countryPatterns = {
+  'uae': ['emirates', 'uae'],
+  'saudi': ['saudi', 'ksa', 'kingdom of saudi'],
+  'uk': ['united kingdom', 'uk', 'britain'],
+  'usa': ['united states', 'usa', 'america'],
+  'drc': ['democratic republic', 'congo'],
+  'ivory': ['ivory', 'cote d\'ivoire'],
+  'tanzania': ['tanzania']
+};
+
+// Utility function to convert a string to Proper Case
+function toProperCase(name) {
+  return name.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
+
+// Utility function to format customer name with only first 3 parts
+function formatCustomerName(str) {
+  if (!str) return '';
+  // Split by space and take only first 3 parts
+  const parts = str.split(' ').slice(0, 3);
+  return toProperCase(parts.join(' '));
+}
+
+const KPIExecutiveSummary = () => {
+  const { excelData, selectedDivision } = useExcelData();
+  const { salesData } = useSalesData();
+  const { columnOrder, basePeriodIndex } = useFilter();
+  
+  // State for API-based product performance data
+  const [productPerformanceData, setProductPerformanceData] = useState(null);
+  const [loadingProductData, setLoadingProductData] = useState(false);
+  const [productDataError, setProductDataError] = useState(null);
+  
+  // State for API-based geographic distribution data
+  const [geographicData, setGeographicData] = useState(null);
+  const [loadingGeographicData, setLoadingGeographicData] = useState(false);
+  const [geographicDataError, setGeographicDataError] = useState(null);
+  
+  // State for API-based customer insights data
+  const [customerInsightsData, setCustomerInsightsData] = useState(null);
+  const [loadingCustomerInsights, setLoadingCustomerInsights] = useState(false);
+  const [customerInsightsError, setCustomerInsightsError] = useState(null);
+  
+  // Add UAE Dirham symbol font
+  useEffect(() => {
+    // Check if style already exists to prevent duplicates
+    const existingStyle = document.getElementById('uae-symbol-style');
+    if (existingStyle) return;
+    
+    const style = document.createElement('style');
+    style.id = 'uae-symbol-style';
+    style.textContent = `
+      @font-face {
+        font-family: 'UAESymbol';
+        src: url('/assets/font.woff2') format('woff2'),
+             url('/assets/font.woff') format('woff'),
+             url('/assets/font.ttf') format('truetype');
+      }
+      .uae-symbol {
+        font-family: 'UAESymbol', sans-serif;
+        margin-right: 5px;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      const styleToRemove = document.getElementById('uae-symbol-style');
+      if (styleToRemove) {
+        document.head.removeChild(styleToRemove);
+      }
+    };
+  }, []);
+  
+  // Fetch product performance data from API for FP division
+  useEffect(() => {
+    const fetchProductPerformance = async () => {
+      // Only use API for FP division
+      const divisionCode = selectedDivision.replace(/-.*$/, '');
+      if (divisionCode !== 'FP') {
+        setProductPerformanceData(null);
+        return;
+      }
+      
+      setLoadingProductData(true);
+      setProductDataError(null);
+      
+      try {
+        const comparisonPeriod = basePeriodIndex > 0 ? columnOrder[basePeriodIndex - 1] : null;
+        
+        const response = await fetch('/api/fp/product-performance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPeriod: {
+              year: columnOrder[basePeriodIndex]?.year,
+              months: columnOrder[basePeriodIndex]?.months,
+              type: columnOrder[basePeriodIndex]?.type
+            },
+            comparisonPeriod: comparisonPeriod ? {
+              year: comparisonPeriod.year,
+              months: comparisonPeriod.months,
+              type: comparisonPeriod.type
+            } : null
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setProductPerformanceData(result.data);
+          console.log('✅ Product performance data loaded from API');
+        } else {
+          throw new Error(result.message || 'Failed to fetch product performance data');
+        }
+      } catch (error) {
+        console.error('❌ Error fetching product performance:', error);
+        setProductDataError(error.message);
+        // Fall back to Excel data on error
+        setProductPerformanceData(null);
+      } finally {
+        setLoadingProductData(false);
+      }
+    };
+    
+    // Only fetch if we have valid data
+    if (Array.isArray(columnOrder) && columnOrder.length > 0 && 
+        basePeriodIndex != null && basePeriodIndex < columnOrder.length &&
+        columnOrder[basePeriodIndex]?.months && Array.isArray(columnOrder[basePeriodIndex].months)) {
+      fetchProductPerformance();
+    }
+  }, [selectedDivision, columnOrder, basePeriodIndex]);
+
+  // Fetch geographic distribution data from API for FP division
+  useEffect(() => {
+    const fetchGeographicDistribution = async () => {
+      // Only use API for FP division
+      const divisionCode = selectedDivision.replace(/-.*$/, '');
+      if (divisionCode !== 'FP') {
+        setGeographicData(null);
+        return;
+      }
+      
+      setLoadingGeographicData(true);
+      setGeographicDataError(null);
+      
+      try {
+        if (Array.isArray(columnOrder) && columnOrder.length > 0 && 
+            basePeriodIndex != null && basePeriodIndex < columnOrder.length &&
+            columnOrder[basePeriodIndex]?.months && Array.isArray(columnOrder[basePeriodIndex].months)) {
+          
+          // Convert month names to integers
+          const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+          const monthIntegers = columnOrder[basePeriodIndex].months.map(month => monthNames.indexOf(month) + 1);
+          
+          const response = await fetch('/api/geographic-distribution', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              division: 'FP',
+              year: columnOrder[basePeriodIndex].year,
+              months: monthIntegers,
+              type: columnOrder[basePeriodIndex].type,
+              includeComparison: true
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            setGeographicData(result.data);
+            console.log('✅ Geographic distribution data loaded from API');
+          } else {
+            throw new Error(result.message || 'Failed to fetch geographic distribution data');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error fetching geographic distribution:', error);
+        setGeographicDataError(error.message);
+        // Fall back to Excel data on error
+        setGeographicData(null);
+      } finally {
+        setLoadingGeographicData(false);
+      }
+    };
+    
+    fetchGeographicDistribution();
+  }, [selectedDivision, columnOrder, basePeriodIndex]);
+  
+  // Fetch customer insights data from API for FP division
+  useEffect(() => {
+    const fetchCustomerInsights = async () => {
+      // Only use API for FP division
+      const divisionCode = selectedDivision.replace(/-.*$/, '');
+      if (divisionCode !== 'FP') {
+        setCustomerInsightsData(null);
+        return;
+      }
+      
+      setLoadingCustomerInsights(true);
+      setCustomerInsightsError(null);
+      
+      try {
+        if (Array.isArray(columnOrder) && columnOrder.length > 0 && 
+            basePe

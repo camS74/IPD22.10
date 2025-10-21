@@ -1,0 +1,552 @@
+:root {
+  /* Blue theme */
+  --color-blue-primary: #288cfa;
+  --color-blue-secondary: #E3F2FD;
+  --color-blue-text: #FFFFFF;
+
+  /* Green theme */
+  --color-green-primary: #2E865F;
+  --color-green-secondary: #E8F5E9;
+  --color-green-text: #FFFFFF;
+
+  /* Yellow theme */
+  --color-yellow-primary: #FFD700;
+  --color-yellow-secondary: #FFFDE7;
+  --color-yellow-text: #000000;
+
+  /* Orange theme */
+  --color-orange-primary: #FF6B35;
+  --color-orange-secondary: #FFF3E0;
+  --color-orange-text: #000000;
+
+  /* Bold Contrast theme */
+  --color-boldContrast-primary: #003366;
+  --color-boldContrast-secondary: #E6EEF5;
+  --color-boldContrast-text: #FFFFFF;
+}
+
+.sales-rep-table-container {
+  margin: 20px;
+  overflow-x: auto;
+}
+
+.financial-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.financial-table th {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ddd;
+  font-weight: bold;
+  font-size: 14px; /* Base font size for headers */
+}
+
+.financial-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ddd;
+  font-size: 12px; /* Base font size for regular cells */
+}
+
+/* Header styles */
+.main-header-row th {
+  font-size: 16px; /* Increased font size for headers (+2pt) */
+}
+
+.period-header {
+  font-weight: bold;
+}
+
+.delta-header {
+  font-weight: bold;
+  font-size: 16px; /* Increased font size for delta headers (+2pt) */
+}
+
+/* Product group styles */
+.product-header {
+  text-align: left !important;
+  font-weight: bold !important;
+  background-color: #f5f5f5;
+  font-size: 12px;
+}
+
+.product-header-row td.product-header {
+  font-weight: bold;
+}
+
+/* Metric cell styles */
+.metric-cell {
+  text-align: right;
+}
+
+/* Delta column styles - always white background */
+td[class*="delta"] {
+  background-color: #FFFFFF !important;
+}
+
+
+
+
+
+/* Total row base styles */
+.total-row td:not(.delta-cell):not(.spacer-col) {
+  font-weight: bold;
+  background-color: #b3d9ff !important; /* Lighter blue */
+  font-size: 1rem !important; /* Same font size as regular cells - force override */
+  color: #333 !important; /* Darker text for better contrast */
+}
+
+/* Delta cells in total row should use inline styles */
+.total-row td.delta-cell {
+  font-weight: bold;
+  background-color: #FFFFFF !important;
+  font-size: 1rem !important; /* Same font size as regular cells - force override */
+  /* color will be set via inline styles in JavaScript */
+}
+
+
+
+.total-row .metric-cell {
+  text-align: right;
+  font-weight: bold !important; /* Ensure total row metric cells are bold */
+  font-size: 1rem !important; /* Ensure same font size as regular cells */
+}
+
+
+
+.total-label {
+  text-align: left !important;
+  padding-left: 8px !important;
+  color: #333 !important; /* Dark text for lighter blue background */
+}
+
+/* General text color rule based on background */
+.metric-cell {
+  color: var(--text-color, #000000);
+}
+
+.sales-rep-variable-selector {
+  margin-bottom: 20px;
+}
+
+.sales-rep-variable-selector label {
+  margin-right: 10px;
+}
+
+.sales-rep-content {
+  padding: 20px 0;
+}
+
+
+
+/* Empty state styles */
+.table-empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Sales by Sales Rep Table - Minimal grid style */
+
+.sales-rep-content .financial-table thead th {
+  border: none;
+  color: #222;
+  font-weight: bold;
+}
+
+.sales-rep-content .financial-table tbody td:not(.spacer-col) {
+  border: 1px solid #e0e0e0;
+  color: #222;
+}
+
+/* Total row styling - exclude delta cells and spacer from color override */
+.sales-rep-content .financial-table tr.total-row td:not(.delta-cell):not(.spacer-col) {
+  font-weight: bold;
+  color: #222;
+  font-size: 1rem !important; /* Ensure same font size as regular cells */
+}
+
+/* Allow delta cells in total row to use inline color styles */
+.sales-rep-content .financial-table tr.total-row td.delta-cell {
+  font-weight: bold;
+  font-size: 1rem !important; /* Ensure same font size as regular cells */
+  /* Remove color override to allow inline styles to work */
+}
+
+
+
+/* New delta cell styling with arrows */
+.delta-cell {
+  font-weight: bold;
+  text-align: center;
+  background-color: #FFFFFF !important;
+}
+
+.delta-arrow {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.delta-value {
+  font-size: 12px;
+} 
+
+/* Sales Rep Table Title and Subtitle Styling */
+.sales-rep-title {
+  font-size: 2rem;
+  font-weight: bold;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  margin-bottom: 0.2em;
+  color: #222;
+}
+
+.sales-rep-subtitle {
+  font-size: 1.1rem;
+  font-style: italic;
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 1em;
+}
+
+/* Table Options Styling */
+.table-options {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.option-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+}
+
+.option-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #288cfa;
+}
+
+.option-checkbox:hover {
+  color: #288cfa;
+}
+
+/* Star Cell Styling - Transparent background, no borders */
+.star-cell {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+  text-align: center !important;
+} 
+
+/* Product Group column fixed width - updated */
+.sales-rep-content .financial-table th.product-header,
+.sales-rep-content .financial-table td:first-child {
+  width: 516px; /* Increased from 396px by adding 120px from delta columns */
+  min-width: 408px; /* Increased from 288px by adding 120px */
+  max-width: 588px; /* Increased from 468px by adding 120px */
+  text-align: left;
+}
+
+/* Center all other table cells (figures and deltas) */
+.sales-rep-content .financial-table th:not(.product-header),
+.sales-rep-content .financial-table td:not(:first-child) {
+  text-align: center;
+}
+
+/* Force center alignment for all table body cells except Product Group */
+.sales-rep-content .financial-table td:not(:first-child) {
+  text-align: center !important;
+}
+.sales-rep-content .financial-table td.metric-cell {
+  text-align: center !important;
+}
+
+/* Ensure total row metric cells are bold with higher specificity */
+.sales-rep-content .financial-table .total-row td.metric-cell {
+  font-weight: bold !important;
+  font-size: 1rem !important;
+}
+
+/* Consistent font size and style for all table cells */
+.sales-rep-content .financial-table th,
+.sales-rep-content .financial-table td {
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+/* Period columns fixed width */
+.sales-rep-content .financial-table th:not(.product-header):not([rowspan]),
+.sales-rep-content .financial-table td.metric-cell:not(.delta-cell) {
+  width: 120px;
+  min-width: 80px;
+  max-width: 140px;
+  text-align: right;
+}
+
+/* Ensure total row metric cells are bold with even higher specificity */
+.sales-rep-content .financial-table .total-row td.metric-cell:not(.delta-cell) {
+  font-weight: bold !important;
+  font-size: 1rem !important;
+}
+
+/* Delta columns fixed width - REDUCED */
+.sales-rep-content .financial-table th[rowspan="3"],
+.sales-rep-content .financial-table td.metric-cell.delta-cell {
+  width: 60px; /* Reduced from 90px to 60px (30px reduction) */
+  min-width: 40px; /* Reduced from 60px to 40px */
+  max-width: 80px; /* Reduced from 110px to 80px */
+  text-align: right;
+}
+
+/* Ensure total row delta cells are bold with highest specificity */
+.sales-rep-content .financial-table .total-row td.metric-cell.delta-cell {
+  font-weight: bold !important;
+  font-size: 1rem !important;
+}
+
+/* Table layout and centering */
+.sales-rep-content .financial-table {
+  table-layout: fixed;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Spacer column styling - make it completely invisible */
+.spacer-col {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.total-row .spacer-col {
+  background: transparent !important;
+  border: none !important;
+} 
+
+th.product-header[rowspan="3"] {
+  font-size: 1.35em;
+} 
+
+/* Center all table headers and cells except first column and spacer */
+.financial-table th,
+.financial-table td {
+  text-align: center;
+}
+.financial-table th.product-header,
+.financial-table td.product-header,
+.financial-table .spacer-col {
+  text-align: left;
+}
+
+/* Title for Amount table - centered and styled like Sales Kgs Comparison */
+.sales-amount-title {
+  font-size: 1.35em;
+  font-weight: bold;
+  margin-bottom: 16px;
+  margin-top: 40px;
+  text-align: center;
+}
+
+/* Spacing between tables */
+.sales-rep-content > table + .sales-amount-title {
+  margin-top: 40px;
+} 
+
+/* Increase spacing between Kgs and Amount tables */
+.sales-rep-content > table + .sales-rep-subtitle {
+  margin-top: 96px;
+} 
+
+.table-separator {
+  height: 120px;
+} 
+
+.amount-table-blank-cell {
+  background: transparent !important;
+  border: none !important;
+  color: transparent !important;
+  min-width: 120px !important;
+  width: 120px !important;
+  padding: 0 !important;
+}
+
+/* Override total row styling for hidden columns */
+.total-row .amount-table-blank-cell {
+  background: transparent !important;
+  border: none !important;
+  color: transparent !important;
+}
+
+/* Ensure delta columns maintain consistent width across both tables - using delta-cell class now */
+.sales-rep-content .financial-table .total-row td.delta-cell {
+  width: 90px !important;
+  min-width: 60px !important;
+  max-width: 110px !important;
+  font-size: 1rem !important; /* Ensure same font size as regular cells */
+}
+
+/* Export button styling */
+.export-button {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-left: 10px;
+}
+
+.export-button:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.export-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.export-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Report tab content styling */
+.sales-rep-report-content {
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin: 10px 0;
+}
+
+.report-header {
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+}
+
+.report-header h2 {
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.report-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+}
+
+.placeholder-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 40px 20px;
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.placeholder-content h3 {
+  color: #495057;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.placeholder-content p {
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.placeholder-content ul {
+  text-align: left;
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 20px 0;
+  padding-left: 20px;
+}
+
+.placeholder-content li {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.placeholder-content li::marker {
+  color: #007bff;
+}
+
+.placeholder-note {
+  margin-top: 30px;
+  padding: 15px;
+  background: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.placeholder-note em {
+  color: #0056b3;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Tables and Report tab content containers */
+.tables-tab-content,
+.report-tab-content {
+  margin-top: 10px;
+}
+
+/* Responsive design for report content */
+@media (max-width: 768px) {
+  .sales-rep-report-content {
+    padding: 15px;
+    margin: 5px 0;
+  }
+  
+  .report-header h2 {
+    font-size: 20px;
+  }
+  
+  .placeholder-content {
+    padding: 20px 10px;
+  }
+  
+  .placeholder-content h3 {
+    font-size: 24px;
+  }
+  
+  .placeholder-icon {
+    font-size: 48px;
+  }
+}

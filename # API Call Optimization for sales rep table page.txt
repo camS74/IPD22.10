@@ -1,0 +1,319 @@
+# API Call Optimization: Combining Product Groups and Customers
+
+## Problem Analysis
+
+Currently, the sales rep page makes 4-5 separate API calls:
+```javascript
+// CURRENT: Multiple sequential/parallel calls
+const [kgsResult, amountResult, mormResult] = await Promise.all([
+  getProductGroupsForSalesRep(rep, 'KGS', columnOrder, selectedDivision),
+  getProductGroupsForSalesRep(rep, 'Amount', columnOrder, selectedDivision),
+  getProductGroupsForSalesRep(rep, 'MoRM', columnOrder, selectedDivision)
+]);
+
+const { customers, dashboardData } = await fetchCustomerDashboardData(...);
+const { customers: processedResult } = await applySavedMergeRules(...);
+```
+
+## Solution: Unified Backend Endpoint
+
+### 1. Create New Backend Route
+
+```javascript
+// routes/salesRepData.js
+router.post('/api/sales-rep-unified-data', async (req, res) => {
+  try {
+    const { salesRep, division, periods, variables = ['KGS', 'Amount', 'MoRM'] } = req.body;
+    
+    // Execute all queries in parallel
+    const [productGroupData, customerData, mergeRules] = await Promise.all([
+      // Get product group data for all variables at once
+      fetchProductGroupDataBatch(salesRep, division, periods, variables),
+      
+      // Get customer data
+      fetchCustomerDashboardDataBatch(salesRep, division, periods),
+      
+      // Get merge rules
+      fetchMergeRules(salesRep, division)
+    ]);
+    
+    res.json({
+      success: true,
+      data: {
+        productGroups: productGroupData,
+        customers: customerData.customers,
+        customerDashboardData: customerData.dashboardData,
+        mergeRules: mergeRules,
+        isPlaceholder: division !== 'FP'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in unified sales rep data:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+```
+
+### 2. Optimize Product Group Query
+
+```javascript
+// services/productGroupService.js
+const fetchProductGroupDataBatch = async (salesRep, division, periods, variables) => {
+  if (division === 'FP') {
+    // Single query for all variables using SQL CASE/PIVOT
+    const query = `
+      WITH period_data AS (
+        SELECT 
+          product_group,
+          CASE 
+            WHEN EXTRACT(YEAR FROM period_date) = $1 AND EXTRACT(MONTH FROM period_date) = $2 
+            THEN 'current_period'
+            ELSE 'other_period'
+          END as period_type,
+          SUM(CASE WHEN variable_type = 'KGS' THEN value ELSE 0 END) as kgs_value,
+          SUM(CASE WHEN variable_type = 'Amount' THEN value ELSE 0 END) as amount_value,
+          SUM(CASE WHEN variable_type = 'MoRM' THEN value ELSE 0 END) as morm_value
+        FROM fp_data 
+        WHERE sales_rep = $3 
+        AND period_date IN (${periods.map((_, i) => `$${i + 4}`).join(',')})
+        GROUP BY product_group, period_type
+      )
+      SELECT * FROM period_data
+      ORDER BY product_group, period_type
+    `;
+    
+    const result = await db.query(query, [year, month, salesRep, ...periodDates]);
+    
+    // Transform result into the expected format
+    return {
+      KGS: transformProductGroupData(result.rows, 'kgs_value'),
+      Amount: transformProductGroupData(result.rows, 'amount_value'),
+      MoRM: transformProductGroupData(result.rows, 'morm_value')
+    };
+  } else {
+    // Generate placeholder data for all variables at once
+    return generatePlaceholderProductGroups(salesRep, division, periods, variables);
+  }
+};
+```
+
+### 3. Optimize Customer Query
+
+```javascript
+// services/customerService.js
+const fetchCustomerDashboardDataBatch = async (salesRep, division, periods) => {
+  if (division === 'FP') {
+    // Single query with all periods
+    const query = `
+      SELECT 
+        customer_name,
+        EXTRACT(YEAR FROM period_date) as year,
+        EXTRACT(MONTH FROM period_date) as month,
+        data_type,
+        SUM(kgs_value) as total_kgs
+      FROM fp_data 
+      WHERE sales_rep = $1 
+      AND period_date IN (${periods.map((_, i) => `$${i + 2}`).join(',')})
+      GROUP BY customer_name, year, month, data_type
+      ORDER BY customer_name, year, month
+    `;
+    
+    const result = await db.query(query, [salesRep, ...periodDates]);
+    
+    return {
+      customers: [...new Set(result.rows.map(row => row.customer_name))],
+      dashboardData: transformCustomerData(result.rows)
+    };
+  } else {
+    return generatePlaceholderCustomerData(salesRep, division, periods);
+  }
+};
+
+const fetchMergeRules = async (salesRep, division) => {
+  const query = `
+    SELECT merged_name, original_customers, is_active 
+    FROM customer_merge_rules 
+    WHERE sales_rep = $1 AND division = $2 AND is_active = true
+  `;
+  
+  const result = await db.query(query, [salesRep, division]);
+  return result.rows;
+};
+```
+
+### 4. Update Frontend to Single API Call
+
+```javascript
+// SalesBySaleRepTable.js - Modified fetchData function
+const fetchData = async () => {
+  if (!rep || !columnOrder || columnOrder.length === 0) {
+    setLoading(false);
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError(null);
+
+    // SINGLE API CALL replaces 4-5 separate calls
+    const response = await fetch('http://localhost:3001/api/sales-rep-unified-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        salesRep: rep,
+        division: selectedDivision,
+        periods: preparePeriods(columnOrder),
+        variables: ['KGS', 'Amount', 'MoRM']
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.success) {
+      const { productGroups, customers, customerDashboardData, mergeRules } = result.data;
+      
+      // Set product group data directly (pre-processed by backend)
+      setKgsData(productGroups.KGS || []);
+      setAmountData(productGroups.Amount || []);
+      setMormData(productGroups.MoRM || []);
+      
+      // Process customer data with pre-fetched merge rules
+      const extendedColumns = buildExtendedColumns(columnOrder);
+      const { customers: processedCustomers } = applySavedMergeRulesFromData(
+        rep, selectedDivision, customers, customerDashboardData, extendedColumns, mergeRules
+      );
+      
+      // Sort customers by base period volume
+      if (basePeriodIndex != null && basePeriodIndex >= 0) {
+        processedCustomers.sort((a, b) => {
+          const aValue = a.rawValues[basePeriodIndex] || 0;
+          const bValue = b.rawValues[basePeriodIndex] || 0;
+          return bValue - aValue;
+        });
+      }
+      
+      setCustomerData(processedCustomers);
+    } else {
+      setError('Failed to load data: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Error fetching unified data:', error);
+    setError('Failed to load data. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+### 5. Modify Merge Rules Function
+
+```javascript
+// Remove API call from applySavedMergeRules and create new version
+const applySavedMergeRulesFromData = (salesRep, division, customers, dashboardData, extendedColumns, mergeRules) => {
+  try {
+    if (mergeRules && mergeRules.length > 0) {
+      console.log(`Found ${mergeRules.length} saved merge rules for ${salesRep}`);
+      
+      const processedCustomers = [];
+      const mergedGroups = [];
+      const processed = new Set();
+      
+      // Apply saved merge rules (same logic as before, but using passed-in mergeRules)
+      mergeRules.forEach((rule) => {
+        const originalCustomers = rule.original_customers; // Note: DB field naming
+        
+        const existingCustomers = originalCustomers.filter(customer => {
+          if (customers.includes(customer)) return true;
+          const lowerCustomer = customer.toLowerCase().trim();
+          return customers.some(c => c.toLowerCase().trim() === lowerCustomer);
+        });
+        
+        if (existingCustomers.length > 1) {
+          existingCustomers.forEach(customer => processed.add(customer));
+          mergedGroups.push(existingCustomers);
+          const mergedCustomer = processMergedCustomerGroup(
+            existingCustomers, extendedColumns, dashboardData, rule.merged_name
+          );
+          processedCustomers.push(mergedCustomer);
+        } else if (existingCustomers.length === 1) {
+          processed.add(existingCustomers[0]);
+          const singleCustomer = processCustomerData(existingCustomers[0], extendedColumns, dashboardData);
+          if (rule.merged_name) {
+            singleCustomer.name = toProperCase(rule.merged_name) + '*';
+            singleCustomer.originalName = rule.merged_name;
+          }
+          processedCustomers.push(singleCustomer);
+        }
+      });
+      
+      // Add remaining unprocessed customers
+      customers.forEach(customer => {
+        if (!processed.has(customer)) {
+          const singleCustomer = processCustomerData(customer, extendedColumns, dashboardData);
+          processedCustomers.push(singleCustomer);
+        }
+      });
+      
+      return {
+        customers: processedCustomers,
+        mergedGroups: mergedGroups
+      };
+    }
+    
+    // No merge rules, return individual customers
+    const individualCustomers = customers.map(customer => 
+      processCustomerData(customer, extendedColumns, dashboardData)
+    );
+    
+    return {
+      customers: individualCustomers,
+      mergedGroups: []
+    };
+    
+  } catch (error) {
+    console.error('Error applying merge rules from data:', error);
+    const individualCustomers = customers.map(customer => 
+      processCustomerData(customer, extendedColumns, dashboardData)
+    );
+    
+    return {
+      customers: individualCustomers,
+      mergedGroups: []
+    };
+  }
+};
+```
+
+## Performance Benefits
+
+### Before Optimization:
+- **5 API calls**: 3 product groups + 1 customer data + 1 merge rules
+- **Sequential execution**: ~1.5-2 seconds total loading time
+- **Network overhead**: 5 HTTP round trips
+
+### After Optimization:
+- **1 API call**: All data in single request
+- **Parallel execution**: Backend runs all queries simultaneously
+- **Reduced loading time**: ~300-500ms total
+- **Reduced network overhead**: 1 HTTP round trip
+
+## Implementation Steps
+
+1. **Create the unified backend endpoint** with parallel query execution
+2. **Optimize SQL queries** to fetch multiple variables/periods in single queries
+3. **Update frontend fetchData()** to use single API call
+4. **Modify merge rules processing** to use pre-fetched data
+5. **Test thoroughly** to ensure all tables display correctly
+6. **Monitor performance** and adjust query optimizations as needed
+
+## Additional Considerations
+
+- **Caching**: Consider Redis caching for frequently accessed sales rep data
+- **Database indexing**: Ensure indexes on sales_rep, division, period_date columns
+- **Error handling**: Implement fallback to original API calls if unified endpoint fails
+- **Gradual rollout**: Deploy with feature flag to switch between old/new approaches

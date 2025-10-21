@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FP - Sales_Rep Sales Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        // Fallback for offline use - if ECharts fails to load from CDN
+        if (typeof echarts === 'undefined') {
+            console.log('ECharts CDN failed to load, charts will not render');
+        }
+    </script>
+    <script>
+        // Font loading detection and fallback
+        function checkUaeSymbolFont() {
+            var testElement = document.createElement('span');
+            testElement.className = 'uae-symbol';
+            testElement.innerHTML = getUAEDirhamSymbolHTML();
+            testElement.style.visibility = 'hidden';
+            testElement.style.position = 'absolute';
+            testElement.style.fontSize = '16px';
+            document.body.appendChild(testElement);
+            
+            var computedStyle = window.getComputedStyle(testElement);
+            var fontFamily = computedStyle.fontFamily;
+            
+            var isCustomFontLoaded = fontFamily.includes('UAESymbol');
+            
+            document.body.removeChild(testElement);
+            
+            if (!isCustomFontLoaded) {
+                var uaeSymbols = document.querySelectorAll('.uae-symbol');
+                uaeSymbols.forEach(function(element) {
+                    element.classList.add('fallback');
+                    element.innerHTML = 'AED';
+                });
+                console.log('UAE symbol font not loaded, using AED fallback');
+            }
+        }
+        
+        // Fallback for ECharts loading
+        window.addEventListener('load', function() {
+            if (typeof echarts === 'undefined') {
+                console.error('ECharts failed to load from CDN');
+            }
+            
+            setTimeout(checkUaeSymbolFont, 2000);
+        });
+        
+        // UAE Dirham symbol function
+        function getUAEDirhamSymbolHTML() {
+            return '<svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"/></svg>';
+        }
+    </script>
+    <style>
+        @font-face {
+            font-family: 'UAESymbol';
+            src: url('data:font/woff2;base64,d09GMgABAAAAAAQYAA0AAAAACBAAAAPDAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cBmAAgkIIBBEICoUUhCkLCgABNgIkAxAEIAWEEAcqG7YGUZQPTgfg47Apmy9iLmImDnGZy6goEb/MR/MYQbVG9uze3RO4ALBFhQoAVFiTQhIyGnVcolgBokvV/WSX/+Yu3Al08BwCbQCpXXyYbdB9UFW6f3A5/X/6J1j6rE/3ezTw3xoLs7ZIgImtaUX58mgKJJRpgon2VjNR6jPw3PkpCCJqLwS8uH9zAuBt6/4L8i7/FfljnFKSjqSrOCbPjpcmhICkbMLIBNdp7uaEepj22efcvw5Wmt7ZAQQA+kPIyOgNgcmEAr0Z6Q8UCoHPdb1urXtAQFQEvU+ii99CwG/KpmMPSCNA1LUECtCICg/wFtCKsZEAFz29WmIpx8aWRoXYmKqaKVpzXGPx4xRWxDrOiI46Pi5gYZrFV1nVURULIOacOMpfNA0OOEB0VAaxbJpa9cACVLfusOrAHHCYEXJSxuFMOMlzYrjif0QefiT+CEVJTut5CY9Q3rhrOk6ORKxIhLENPyYHzM7gNTvhyNbOyA+5cTUcxsBAwbYEz4hnOLRLvUv+pPBYyZ4Ao4LQv8rP5M8wVD4AXnPeCDrOY975thcv4RW7Nbu1u8x3fSUbxRt09Qc4BtdqBO+N0k1vktptmTo3z4ok3bC7ANk6w/v5t4cixFb5r4Qx7hewSoO10Pvjr2OEkcAWoYLFurl/zmyEQtN/3YQZ64aAodj/C3GxW7lQ9zTZa4S7P03ykfeRY/qVJdqcKi7WqGtO35P6ItlvOnmk15N2cyckpvH93UXSirc66fagHa6uBbXJS23+ca7vZswQxF4Tj19ElEbnsnt11wOWtsq+/M3LL16ExpEvXqQ0u/l86v/ogX370tJ8DDgwBNdO3jo5y7Zk7uZsJ9gAmutT+WV6dzmMm3ypofBt4uWqfDr5Sk6+TXQxu7ASArJV/NeJSG8NITj3+8alNdaT/zXi/PH0l6svQKMEAht4IsszBuSXAtMLb34AQBZGdrNA4e4LQEIITEcD0O6CAPTgD4HQZD0Ekga7IZANcU+AQlM0C1DqiHyk2hJLCUXRhIlAJ0O3TDJpt4XM5pgnC922yVLfcPicSnfEi9Ol24heLZo060e4qOOK8OXNVwAPRI1eDZp1gN8sDepcv0rmoJrehuYOgEU69WvRr12DegFg0bYL9/j6AID5GjQZ0F7RhlfKFQFm6MoV5GKvJg3HZ9K8EaEdKsu+Rl/BPPnx7NaAJ2NhnNPb1EB8aW8SSjrg9YJvsKefZ8s99YouLvbq09LbOMKbNx80b27D7W7O29uH9qaeKoYJcK2vmgiEfIGINHYBAA==') format('woff2');
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #e3f2fd;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 0;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-container {
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            max-height: 80px;
+            max-width: 200px;
+            object-fit: contain;
+        }
+        
+        .division-title {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .period-info {
+            font-size: 1.1rem;
+            color: #34495e;
+            background: #ecf0f1;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .uae-symbol {
+            font-family: 'UAESymbol', sans-serif;
+        }
+        
+        .uae-symbol.fallback {
+            font-family: sans-serif !important;
+        }
+        
+        /* UAE Dirham Symbol - SVG based, no font loading needed */
+        .uae-dirham-symbol {
+          display: inline-block;
+          vertical-align: -0.1em;
+          width: 1em;
+          height: 1em;
+          margin-right: 0.2em;
+          fill: currentColor;
+        }
+        
+        /* EXACT Sales Rep Report Styles from SalesRepReport.css */
+        .sales-rep-report-content {
+            padding: 20px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: visible;
+        }
+
+        /* Sales Rep Content Styles - EXACT from SalesBySalesRepTable.css */
+        .sales-rep-content {
+            margin: 20px;
+            overflow-x: auto;
+        }
+
+        .sales-rep-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .sales-rep-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .table-title {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .table-title h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+
+        .table-subtitle {
+            margin-bottom: 15px;
+        }
+
+        .table-container-for-export {
+            margin: 20px;
+            overflow-x: auto;
+        }
+
+        .table-view {
+            margin: 20px;
+            overflow-x: auto;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        /* Additional table styling to match original exactly */
+        .financial-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .financial-table th {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .financial-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        }
+
+        /* Ensure proper spacing and alignment */
+        .no-data-container {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-data-container h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* Report Header */
+        .report-header {
+            background: linear-gradient(135deg, #4a90e2, #87ceeb);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header-content h1 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: white !important;
+        }
+
+        .header-content h2 {
+            font-size: 1.8em;
+            margin: 0 0 15px 0;
+            font-weight: 500;
+            opacity: 0.9;
+            color: white !important;
+        }
+
+        .report-period {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: 500;
+            color: white !important;
+        }
+
+        .period-year {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: white !important;
+        }
+
+        .period-type {
+            font-size: 1.1em;
+            font-weight: 400;
+            color: white !important;
+            margin-bottom: 10px;
+        }
+
+        .period-description {
+            font-size: 0.9em;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9) !important;
+            max-width: 800px;
+            margin: 15px auto 0;
+            line-height: 1.4;
+        }
+
+        /* Report Sections */
+        .report-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .report-section:last-child {
+            border-bottom: none;
+        }
+
+        .report-section h2 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #667eea;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        /* Ensure non-report-section blocks (like PerformanceDashboard) match the same title style */
+        .section h2 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #667eea;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        
+        /* Executive Summary */
+        .summary-description {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .metric-row {
+            display: flex;
+            gap: 30px;
+            margin: 25px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            min-width: 200px;
+            flex: 1;
+            max-width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #003366;
+            margin-bottom: 5px;
+            line-height: 1.1;
+        }
+
+        .metric-value.positive {
+            color: #007bff;
+        }
+
+        .metric-value.negative {
+            color: #dc3545;
+        }
+
+        .metric-value.warning {
+            color: #f39c12;
+        }
+
+        .metric-previous {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Top 3 Product Groups Styles */
+        .top-products-horizontal {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .top-product-card {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 280px;
+            max-width: 320px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .top-product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-rank {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .rank-icon {
+            font-size: 2em;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .product-info {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .top-product-card .product-info .product-name {
+            font-weight: bold !important;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            text-align: center !important;
+            width: 100%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .product-percentage {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+        }
+
+        .product-performance {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9em;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-top: auto;
+        }
+
+        .product-performance.positive {
+            color: #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .product-performance.negative {
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Customer Insights Styles */
+        .customer-insights-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .customer-insights-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .insights-icon {
+            font-size: 1.5em;
+        }
+
+        .customer-insights-header h3 {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .customer-insights-cards {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .customer-insight-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+            max-width: 280px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .customer-insight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .insight-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .insight-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+
+        .insight-subtitle {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            min-height: 20px;
+        }
+
+        .insight-footer {
+            font-size: 0.8em;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .customer-list {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .customer-name-line {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 3px;
+            padding: 2px 0;
+            line-height: 1.2;
+        }
+
+        .customer-name-line:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Geographic Distribution Section - EXACT from ExecutiveSummary.css */
+        .geo-distribution-container {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 32px !important;
+            width: 100% !important;
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+        }
+
+        .geo-main-row {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+            gap: 32px !important;
+            width: 100% !important;
+            flex-wrap: nowrap !important;
+        }
+
+        .geo-regional-row {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+            gap: 24px !important;
+            width: 100% !important;
+            flex-wrap: nowrap !important;
+            max-width: 1600px;
+        }
+
+        .geo-card, .geo-region-card {
+            flex: none !important;
+            width: 220px !important;
+            min-width: 180px !important;
+            max-width: 220px !important;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
+            padding: 24px 18px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .geo-card.local-card {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .geo-card.export-card {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+
+        .geo-flag {
+            font-size: 2.5em !important;
+            margin-bottom: 12px !important;
+        }
+
+        .geo-label {
+            font-size: 1.3em !important;
+            margin-bottom: 8px !important;
+            font-weight: bold !important;
+        }
+
+        .geo-percentage {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .geo-subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .region-icon {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .region-name {
+            font-size: 1.2em;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .region-percentage {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .region-details {
+            font-size: 0.9em;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        /* Performance Dashboard */
+        .tab-container {
+            margin: 30px 0;
+        }
+
+        .tab-instructions {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .tab-button {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 15px;
+            color: #64748b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-width: 200px;
+            max-width: 220px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            line-height: 1.3;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 16px;
+        }
+
+        .tab-button:hover {
+            color: #374151;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab-button:hover::before {
+            opacity: 1;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            border-color: #1e40af;
+            color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+        }
+
+        .tab-button.active::before {
+            display: none;
+        }
+
+        .tab-button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .chart-container {
+            min-height: 200px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Product Groups KGS Table Styles - EXACT from SalesBySalesRepTable.css */
+        .product-groups-kgs-table {
+            margin: 20px 0;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-groups-kgs-table h3 {
+            margin: 0 0 20px 0;
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            background: white;
+        }
+
+        .kgs-comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .kgs-comparison-table th {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .kgs-comparison-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        }
+
+        .kgs-comparison-table .product-header {
+            text-align: left !important;
+            font-weight: bold !important;
+            background-color: #f5f5f5;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .kgs-comparison-table .period-header {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .kgs-comparison-table .delta-header {
+            font-weight: bold;
+            font-size: 16px;
+            color: #856404;
+        }
+
+        .kgs-comparison-table .product-name {
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            background: white;
+            padding-left: 8px;
+            font-size: 12px;
+        }
+
+        .kgs-comparison-table .metric-cell {
+            text-align: right;
+            font-weight: 500;
+            color: #333;
+            background: white;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .kgs-comparison-table .delta-cell {
+            background: white;
+            font-weight: 600;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .kgs-comparison-table .delta-arrow {
+            margin-right: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .kgs-comparison-table .delta-value {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .kgs-comparison-table .delta-up {
+            color: #28a745;
+        }
+
+        .kgs-comparison-table .delta-down {
+            color: #dc3545;
+        }
+
+        /* KPI Cards Styles */
+        .executive-summary-section {
+            margin-top: 30px;
+        }
+
+        .kpi-section-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-card.large {
+            grid-column: span 2;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Performance Dashboard Styles */
+        .tab-container {
+            margin-top: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .tab-button:hover:not(.active) {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            min-height: 400px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        /* Customer Insights Styles */
+        .customer-insights-section {
+            margin-top: 30px;
+        }
+        
+        .customer-insights-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        
+        .insights-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .customer-insights-header h3 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .customer-insights-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .customer-insight-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .customer-insight-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .insight-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .insight-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .insight-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .insight-subtitle {
+            font-size: 0.9rem;
+            color: #495057;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .insight-footer {
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .customer-list {
+            text-align: left;
+        }
+        
+        .customer-name-line {
+            padding: 2px 0;
+            font-size: 0.85rem;
+        }
+        
+        /* Geographic Distribution Styles */
+        .executive-summary-section {
+            margin-top: 30px;
+        }
+        
+        .kpi-section-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .kpi-card.large {
+            grid-column: span 2;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-trend {
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .division-title {
+                font-size: 2rem;
+            }
+            
+            .metric-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .customer-insights-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-card.large {
+                grid-column: span 1;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+            }
+            
+            .financial-table {
+                font-size: 0.8rem;
+            }
+            
+            .financial-table th,
+            .financial-table td {
+                padding: 8px 4px;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .header {
+                box-shadow: none;
+                border-bottom: 2px solid #333;
+            }
+            
+            .section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            
+            .metric-card,
+            .customer-insight-card,
+            .kpi-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="logo-container">
+                <img src="/static/media/IP transparent-.ee1d4faa4dd76b648490.jpg" alt="Company Logo" class="logo">
+            </div>
+            <h1 class="division-title">FP - Sales_Rep Sales Report</h1>
+            <div class="period-info">Report Period: HY1 2025</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        
+        <div class="table-view">
+          <div class="table-container-for-export">
+            <div class="table-title">
+              <h2>Sales by Sales Rep - FP</h2>
+              <div class="table-subtitle">
+                <div style="font-size: 18px; font-weight: bold;">
+                  <svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"/></svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="product-groups-kgs-table">
+              <h3>Sales Rep Performance Summary</h3>
+              <table class="kgs-comparison-table">
+                <thead>
+                  <tr>
+                    <th class="product-header">Sales Rep</th>
+                    
+                      <th class="period-header">HY1 2023</th>
+                    
+                      <th class="period-header">HY1 2024</th>
+                    
+                      <th class="period-header">HY1 2025</th>
+                    
+                      <th class="period-header">HY1 2025</th>
+                    
+                      <th class="period-header">FY 2025</th>
+                    
+                    <th class="delta-header">Δ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                      <tr class="product-row">
+                        <td class="product-name">Sofiane & Morocco</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Sojy & Direct Sales</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Riad & Nidal</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Rania Sleem</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Others</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Abraham Mathew</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Alfred Barakat</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Bashar Tannous</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Christopher Dela Cruz</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Hari Krishnan M</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">James Kassab</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Khalid Abdul Rahman</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Lokeshwaran Dhandapani</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Mohamed Adel</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Mohamed Fawzi</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Narek Koroukian</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Olivier Baharian</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Salil Punnilath</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Waleed Fawzi</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Waseem Ahmed Hameed</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                      <tr class="product-row">
+                        <td class="product-name">Ziad Al Houseini</td>
+                        <td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td><td class="metric-cell">0</td>
+                        <td class="delta-cell">
+                          <span class="delta-arrow">↓</span>
+                          <span class="delta-value delta-down">
+                            0%
+                          </span>
+                        </td>
+                      </tr>
+                    
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      
+    </div>
+</body>
+</html>

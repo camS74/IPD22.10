@@ -1,0 +1,52 @@
+**********************
+PowerShell transcript start
+Start time: 20251014180327
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\IPD 9.10\upload-to-github.ps1
+Process ID: 34980
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\IPD 9.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/dashboard/ColumnConfigGrid.js', LF will be replaced by CRLF the next tim
+e Git touches it
+warning: in the working copy of 'src/components/dashboard/ComprehensiveHTMLExport.js', LF will be replaced by CRLF the n
+ext time Git touches it
+warning: in the working copy of 'echarts-base64.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'echarts.min.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/BarChartHTMLExport.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/dashboard/ComprehensiveHTMLExport.backup.js', LF will be replaced by CRL
+F the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/MultiChartHTMLExport.js', LF will be replaced by CRLF the next
+ time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 85, done.
+Counting objects: 100% (85/85), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (50/50), done.
+Writing objects: 100% (50/50), 917.08 KiB | 2.02 MiB/s, done.
+Total 50 (delta 36), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (36/36), completed with 34 local objects.
+To https://github.com/camS74/IPD26.9.git
+   25cd0ab..6432005  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251014180340
+**********************

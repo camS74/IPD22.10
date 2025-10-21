@@ -1,0 +1,56 @@
+**********************
+PowerShell transcript start
+Start time: 20251010112910
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\IPD 9.10\upload-to-github.ps1
+Process ID: 20196
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\IPD 9.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+ time Git touches it
+warning: in the working copy of 'server/database/ProductPerformanceService.js', LF will be replaced by CRLF the next tim
+e Git touches it
+warning: in the working copy of 'server/database/WorldCountriesService.js', LF will be replaced by CRLF the next time Gi
+t touches it
+warning: in the working copy of 'server/server.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/CountryReference.js', LF will be replaced by CRLF the next tim
+e Git touches it
+warning: in the working copy of 'src/components/dashboard/KPIExecutiveSummary.css', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'src/components/dashboard/KPIExecutiveSummary.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/dashboard/ProductGroupTable.js', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesByCountryTable.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'start-servers-win.ps1', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'erver && node -e ', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/components/CustomerInsights.js', LF will be replaced by CRLF t
+he next time Git touches it
+warning: in the working copy of 'src/components/dashboard/components/FinancialPerformance.js', LF will be replaced by CR
+LF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/utils/formatters.js', LF will be replaced by CRLF the next tim
+e Git touches it
+warning: in the working copy of 'tomername IS NOT NULL', LF will be replaced by CRLF the next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251010112917
+**********************

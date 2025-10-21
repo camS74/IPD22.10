@@ -1,0 +1,99 @@
+/* components/writeup/WriteUpViewV2.css */
+
+.writeup-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.writeup-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.writeup-editor {
+  min-height: 680px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: auto;
+}
+
+.writeup-section {
+  margin: 22px 0;
+  padding: 16px;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #fafbff;
+}
+
+.metric-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.metric-card .title {
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.metric-card .value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0b2b4b;
+}
+
+.alert {
+  border-left: 4px solid #f59e0b;
+  background: #fff8e1;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.chat-panel {
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  border: 1px dashed #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.chat-messages {
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background: #0b2b4b;
+  color: #fff;
+  border-color: #0b2b4b;
+}
+
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .writeup-toolbar { display: none; }
+}

@@ -1,0 +1,313 @@
+# CustomerKeyFacts Component Enhancement Requirements
+
+## Context
+The component analyzes customer sales performance data with Volume (MT) and Sales (AED) metrics across multiple periods (2023-2025 HY1, Actual vs Budget, YoY comparisons).
+
+## Current Issues & Required Improvements
+
+### 1. **Missing Period-over-Period Trend Analysis**
+**Problem:** The component doesn't analyze multi-period trends (2023 HY1 → 2024 HY1 → 2025 HY1)
+**Required:**
+- Add 3-year trend analysis showing consistent growth/decline patterns
+- Identify customers with accelerating vs decelerating growth
+- Calculate CAGR (Compound Annual Growth Rate) for each customer
+- Flag customers showing recent reversal patterns (e.g., grew 2023-2024 but declined 2024-2025)
+
+**Implementation:**
+```javascript
+// Add to analytics section
+const periodTrendAnalysis = {
+  multiYearTrends: customers.map(c => {
+    const periods = [2023, 2024, 2025].map(year => 
+      columnOrder.findIndex(col => col.year === year && col.month === 'HY1')
+    );
+    const values = periods.map(idx => c.rawValues[idx] || 0);
+    
+    return {
+      name: c.name,
+      values,
+      trend: calculateTrend(values), // 'accelerating', 'decelerating', 'stable'
+      cagr: calculateCAGR(values[0], values[2], 2),
+      reversalDetected: detectReversal(values)
+    };
+  }),
+  
+  trendCategories: {
+    accelerating: [], // Growth rate increasing
+    decelerating: [], // Growth rate slowing
+    consistent: [],   // Steady growth
+    volatile: []      // Erratic patterns
+  }
+};
+```
+
+### 2. **Budget Achievement Trajectory Analysis**
+**Problem:** Current analysis only shows HY1 vs Budget, but doesn't project FY achievement
+**Required:**
+- Calculate run-rate projection: (HY1 Actual / HY1 Budget) * FY Budget
+- Show gap to FY target in both absolute and percentage terms
+- Identify customers likely to miss/exceed FY targets
+- Add "Required HY2 performance" metric for each customer
+
+**Implementation:**
+```javascript
+const budgetTrajectory = customers.map(c => {
+  const hy1Actual = c.rawValues[hy1ActualIndex];
+  const hy1Budget = c.rawValues[hy1BudgetIndex];
+  const fyBudget = c.rawValues[fyBudgetIndex];
+  
+  const hy1Achievement = hy1Actual / hy1Budget;
+  const projectedFY = (hy1Actual / hy1Budget) * fyBudget;
+  const fyGap = fyBudget - projectedFY;
+  const requiredHY2 = fyBudget - hy1Actual;
+  const requiredHY2Growth = ((requiredHY2 / hy1Actual) - 1) * 100;
+  
+  return {
+    name: c.name,
+    hy1Achievement: hy1Achievement * 100,
+    projectedFY,
+    fyGap,
+    requiredHY2,
+    requiredHY2Growth,
+    achievementRisk: hy1Achievement < 0.45 ? 'HIGH' : hy1Achievement < 0.48 ? 'MEDIUM' : 'LOW',
+    realistic: requiredHY2Growth < 20 // Is HY2 target realistic?
+  };
+});
+```
+
+### 3. **Customer Mix Shift Analysis**
+**Problem:** Doesn't analyze how customer portfolio mix is changing over time
+**Required:**
+- Track share shifts: which customers are gaining/losing portfolio share
+- Identify emerging vs declining customers by share movement
+- Calculate portfolio Herfindahl Index (concentration measure)
+- Show "share migration" between customer tiers
+
+**Implementation:**
+```javascript
+const mixShiftAnalysis = {
+  shareChanges: customers.map(c => {
+    const share2023 = c.rawValues[index2023] / total2023;
+    const share2024 = c.rawValues[index2024] / total2024;
+    const share2025 = c.rawValues[index2025] / total2025;
+    
+    return {
+      name: c.name,
+      shareChange: share2025 - share2023,
+      shareChangePercent: ((share2025 - share2023) / share2023) * 100,
+      trajectory: share2025 > share2024 && share2024 > share2023 ? 'rising' : 
+                  share2025 < share2024 && share2024 < share2023 ? 'falling' : 'mixed'
+    };
+  }),
+  
+  herfindahlIndex: calculateHerfindahl(currentShares), // Market concentration
+  tierMigration: {
+    promoted: [], // Moved to higher tier
+    demoted: [],  // Moved to lower tier
+    stable: []
+  }
+};
+```
+
+### 4. **NEW Customers Performance Deep-Dive**
+**Problem:** "Interbrand Costreet Behind Babel Rest" shows "NEW" flag but no special analysis
+**Required:**
+- Dedicated section for new customer performance
+- Compare new customers' first-period performance vs established customer averages
+- Calculate "new customer success rate" (% meeting/exceeding targets)
+- Flag new customers at risk of churning
+
+**Implementation:**
+```javascript
+const newCustomerAnalysis = {
+  newCustomers: customers.filter(c => c.isNew), // Flag from data
+  performance: {
+    avgVsEstablished: newCustomersAvg / establishedCustomersAvg,
+    budgetAchievement: newCustomers.map(c => ({
+      name: c.name,
+      achievement: c.actual / c.budget,
+      volumeRamp: c.actual, // First period volume
+      risk: c.actual < c.budget * 0.5 ? 'HIGH' : 'LOW'
+    })),
+    totalContribution: sumNewCustomers / totalPortfolio * 100,
+    successRate: newCustomers.filter(c => c.actual >= c.budget).length / newCustomers.length
+  }
+};
+```
+
+### 5. **Customer-Specific Anomaly Detection**
+**Problem:** Doesn't flag unusual customer behaviors automatically
+**Required:**
+- Detect sudden drops >50% YoY (e.g., Mai Dubai 11.7% down, then 37.2% down)
+- Flag customers with negative growth for 2+ consecutive periods
+- Identify "yo-yo" customers (up, down, up pattern = unreliable)
+- Alert on customers missing budget by >30%
+
+**Implementation:**
+```javascript
+const anomalyDetection = {
+  severeDeclines: customers.filter(c => {
+    const yoy1 = c.yoy2024vs2023;
+    const yoy2 = c.yoy2025vs2024;
+    return yoy1 < -20 || yoy2 < -30; // Thresholds
+  }),
+  
+  consecutiveDeclines: customers.filter(c => {
+    return c.trend.every(val => val < 0); // All periods declining
+  }),
+  
+  volatileCustomers: customers.filter(c => {
+    const stdDev = calculateStdDev(c.values);
+    const mean = calculateMean(c.values);
+    return (stdDev / mean) > 0.5; // High coefficient of variation
+  }),
+  
+  budgetMisses: customers.filter(c => 
+    c.actual / c.budget < 0.7 // <70% achievement
+  )
+};
+```
+
+### 6. **Sales vs Volume Price Realization Analysis**
+**Problem:** Current kilo rate analysis is basic; needs deeper insights
+**Required:**
+- Calculate effective price per MT for each customer over time
+- Identify customers where price declined despite volume growth (margin pressure)
+- Flag customers with improving price realization (value growth)
+- Compare customer pricing vs portfolio average
+
+**Implementation:**
+```javascript
+const priceRealizationAnalysis = customers.map(c => {
+  const periods = ['2023HY1', '2024HY1', '2025HY1'];
+  const analysis = periods.map(p => ({
+    volume: c.volume[p],
+    sales: c.sales[p],
+    pricePerMT: c.sales[p] / (c.volume[p] / 1000)
+  }));
+  
+  return {
+    name: c.name,
+    currentPrice: analysis[2].pricePerMT,
+    priceChange: analysis[2].pricePerMT - analysis[0].pricePerMT,
+    priceChangePct: ((analysis[2].pricePerMT - analysis[0].pricePerMT) / analysis[0].pricePerMT) * 100,
+    priceVsPortfolio: analysis[2].pricePerMT / portfolioAvgPrice,
+    trend: analysis[2].pricePerMT > analysis[1].pricePerMT ? 'improving' : 'declining',
+    
+    // Critical insight: Volume up but price down?
+    marginPressure: c.volumeGrowth > 0 && this.priceChangePct < -5,
+    valueDriven: c.volumeGrowth > 0 && this.priceChangePct > 5
+  };
+});
+```
+
+### 7. **Predictive Alerts & Risk Scoring**
+**Problem:** Analysis is descriptive, not predictive
+**Required:**
+- Risk score for each customer (0-100) based on multiple factors
+- Predictive alerts: "Customer X likely to miss FY target by Y%"
+- Early warning indicators: declining YoY + below budget + price pressure
+- Opportunity score: consistent growth + price improvement + share gain
+
+**Implementation:**
+```javascript
+const customerRiskScoring = customers.map(c => {
+  const riskFactors = {
+    consecutiveDecline: c.periods.filter(p => p.yoy < 0).length * 15,
+    budgetMiss: (1 - c.budgetAchievement) * 30,
+    pricePressure: c.priceChangePct < -10 ? 20 : 0,
+    highConcentration: c.share > 0.3 ? 25 : 0,
+    volatility: c.coefficientOfVariation > 0.5 ? 10 : 0
+  };
+  
+  const riskScore = Object.values(riskFactors).reduce((a,b) => a+b, 0);
+  
+  return {
+    name: c.name,
+    riskScore: Math.min(riskScore, 100),
+    riskLevel: riskScore > 60 ? 'HIGH' : riskScore > 30 ? 'MEDIUM' : 'LOW',
+    primaryRisks: Object.entries(riskFactors)
+      .filter(([k,v]) => v > 0)
+      .sort((a,b) => b[1] - a[1])
+      .map(([k,v]) => k),
+    
+    // Predictive
+    projectedFYMiss: c.projectedFY < c.fyBudget ? c.fyBudget - c.projectedFY : 0,
+    churnRisk: riskScore > 50 && c.yoy < -20
+  };
+});
+```
+
+### 8. **Visual Improvements**
+**Required:**
+- Add sparklines showing 3-year trend for each customer in Top Contributors
+- Color-code customers by risk level (red/yellow/green badges)
+- Add mini-charts for Volume vs Sales divergence
+- Show portfolio composition pie chart (top 5 + others)
+- Add trend arrows (↗️↘️) next to all variance percentages
+
+### 9. **Additional Sections to Add**
+
+#### A. **Period Comparison Matrix**
+Show side-by-side comparison of ALL customers across 2023/2024/2025 HY1:
+```
+Customer | 2023 HY1 | Δ% | 2024 HY1 | Δ% | 2025 HY1 | 3Y Trend
+```
+
+#### B. **Achievement Heatmap**
+Visual grid showing which customers are on-track vs off-track:
+- Green: >100% of budget
+- Yellow: 90-100%
+- Red: <90%
+
+#### C. **Portfolio Health Score**
+Overall dashboard score combining:
+- Customer concentration (lower = better)
+- Retention rate (higher = better)
+- Budget achievement (closer to 100% = better)
+- Growth consistency (stable > volatile)
+- New customer performance
+
+### 10. **Data Quality & Edge Cases**
+**Add handling for:**
+- Customers with zero budget but actual sales (e.g., Al Ghadeer)
+- Customers that disappeared (100% decline)
+- Division by zero when calculating percentages
+- Missing data periods (show "N/A" instead of 0%)
+
+## Implementation Priority
+1. **HIGH:** Budget trajectory, risk scoring, anomaly detection
+2. **MEDIUM:** Multi-period trends, mix shift analysis, price realization
+3. **LOW:** Visual improvements, additional sections
+
+## Expected Outcome
+A comprehensive executive dashboard that:
+- Identifies at-risk customers BEFORE they fail
+- Shows clear action items (not just metrics)
+- Predicts FY performance based on HY1 actuals
+- Flags unusual patterns automatically
+- Provides customer-specific recommendations
+
+## Code Structure Suggestion
+```javascript
+const findings = useMemo(() => {
+  // 1. Base calculations (existing)
+  // 2. NEW: Multi-period trend analysis
+  // 3. NEW: Budget trajectory & FY projection
+  // 4. NEW: Customer mix shift analysis
+  // 5. NEW: New customer performance
+  // 6. NEW: Anomaly detection
+  // 7. NEW: Price realization analysis
+  // 8. NEW: Risk scoring & predictions
+  // 9. Existing concentration & retention (keep)
+  // 10. Return comprehensive findings object
+}, [rows, amountRows, columnOrder, basePeriodIndex]);
+```
+
+## Testing Checklist
+- [ ] Handles missing periods gracefully
+- [ ] Correctly identifies new vs established customers
+- [ ] Risk scores align with actual performance
+- [ ] Budget projections match manual calculations
+- [ ] All percentages handle division by zero
+- [ ] Trend detection works for 2-3 period datasets

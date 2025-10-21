@@ -1,0 +1,347 @@
+.table-view {
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  max-width: 100%; /* Use full width of container */
+  overflow-x: visible; /* No horizontal scrolling */
+  box-sizing: border-box; /* FIX: Include padding within width */
+}
+
+/* PDF export optimization */
+@media print {
+  .table-view {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  .financial-table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+.table-header {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.header-center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-title {
+  margin: 0 0 8px 0;  /* Consistent margin */
+  font-size: 1.5rem;
+  color: #333;
+  text-align: center;
+  font-weight: 700;  /* Consistent with other pages */
+}
+
+.table-subtitle {
+  font-style: italic;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 5px;
+  color: #000000;
+  font-size: 1.1rem;
+}
+
+.table-container {
+  width: 100%;
+  margin: 15px auto 10px auto; /* Center the container and add margins */
+  display: flex;
+  justify-content: center; /* Center the table horizontally */
+  position: relative;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding-bottom: 10px;
+}
+
+.financial-table {
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0 auto; /* Center the table horizontally */
+  width: 90%; /* Use 90% of container width for equal side gaps */
+  table-layout: fixed; /* Fixed layout for consistent proportions */
+  text-align: center; /* Center content within cells */
+}
+
+/* Allow JavaScript to control column widths */
+
+.financial-table th,
+.financial-table td {
+  padding: 7px; /* Reduced from 8px */
+  border: 1px solid #ddd;
+  text-align: center;
+  white-space: normal; /* Allow text wrapping */
+  height: 90%; /* Reduce height by 10% */
+  line-height: 1.08; /* Reduced line height by 10% from default of 1.2 */
+}
+
+/* Font sizing for period columns - widths controlled by JavaScript */
+.financial-table th:nth-child(3n+2),
+.financial-table td:nth-child(3n+2) {
+  font-size: 13px; /* Slightly smaller font for amount values */
+}
+
+.financial-table th:nth-child(3n+3),
+.financial-table td:nth-child(3n+3) {
+  font-size: 13px; /* Consistent font size */
+}
+
+.financial-table th:nth-child(3n+4),
+.financial-table td:nth-child(3n+4) {
+  font-size: 13px; /* Consistent font size */
+}
+
+/* Force equal width distribution for each period column group */
+.period-column-group {
+  width: auto;
+  display: inline-block;
+}
+
+/* Let JavaScript colgroup widths take precedence */
+
+/* Apply strict box sizing to prevent padding from affecting width */
+.financial-table * {
+  box-sizing: border-box;
+}
+
+/* Handle text overflow in cells */
+.financial-table td {
+  padding: 5px;
+  white-space: normal;
+}
+
+.financial-table th:first-child,
+.financial-table td:first-child {
+  text-align: left;
+  font-weight: normal;
+  background-color: #ffffff;
+}
+
+/* Special styling for empty header cells in the first column */
+.financial-table th.empty-header {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Header styling - ensure consistency */
+.financial-table th {
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Header styling */
+.financial-table thead {
+  background-color: white;
+}
+
+.financial-table thead th {
+  background-color: white;
+  border-bottom: 2px solid #ddd; /* Add border for visual separation */
+}
+
+/* Ensure all header cells have same style */
+.financial-table thead tr th {
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+/* Style for metric headers (Amount, % of Sales, Sales per Kg) */
+.financial-table tr:nth-child(4) th {
+  font-size: 12px; /* Slightly smaller */
+  padding: 5px 7px; /* Reduced padding by ~10% */
+}
+
+/* Remove background color from section headers to keep them white */
+.financial-table .section-header {
+  background-color: transparent;
+}
+
+/* Make all cells in section header rows bold */
+.financial-table .section-header td {
+  font-weight: bold;
+}
+
+/* Make ledger cell and numeric figures bold for important rows */
+.financial-table .important-row td {
+  font-weight: bold !important;
+}
+
+/* Apply bold more specifically to all cells in important rows */
+.financial-table tr.important-row td:first-child,
+.financial-table tr.important-row td:nth-child(3n+2),
+.financial-table tr.important-row td:nth-child(3n+3),
+.financial-table tr.important-row td:nth-child(3n+4) {
+  font-weight: bold !important;
+}
+
+.financial-table .separator-row td {
+  height: 4.5px; /* Reduced by 10% from 5px */
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.financial-table .calculated-cell {
+  font-style: italic;
+  color: #000000;
+}
+
+/* Financial Table backgrounds are now handled by JavaScript getCellBackgroundColor function */
+
+.table-empty-state {
+  padding: 30px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+  margin: 20px 0;
+  color: #666;
+}
+
+/* Floating PDF export button styles */
+.pdf-export-button {
+  position: static;
+  background-color: #1D6F42;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pdf-export-button:hover {
+  background-color: #1a7ae0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pdf-export-button:active {
+  background-color: #1565c0;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hide PDF export button in print/export */
+@media print {
+  .pdf-export-button {
+    display: none;
+  }
+}
+
+/* Enhanced scrolling for all screen sizes */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive Design for Different Screen Resolutions */
+
+/* Extra large screens (1920px and up) */
+@media (min-width: 1920px) {
+  .financial-table {
+    font-size: 16px;
+  }
+  .financial-table th,
+  .financial-table td {
+    padding: 10px;
+  }
+}
+
+/* Large screens (1366px to 1919px) */
+@media (min-width: 1366px) and (max-width: 1919px) {
+  .financial-table {
+    font-size: 14px;
+  }
+  .financial-table th,
+  .financial-table td {
+    padding: 8px;
+  }
+}
+
+/* Medium screens (1024px to 1365px) */
+@media (min-width: 1024px) and (max-width: 1365px) {
+  .financial-table {
+    font-size: 12px;
+  }
+  .financial-table th,
+  .financial-table td {
+    padding: 6px;
+  }
+  .table-view {
+    overflow-x: auto; /* Enable scrolling for smaller screens */
+  }
+}
+
+/* Small screens (768px to 1023px) - Tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .financial-table {
+    font-size: 11px;
+    min-width: 800px; /* Minimum width for readability */
+  }
+  .financial-table th,
+  .financial-table td {
+    padding: 4px;
+  }
+  .table-view {
+    overflow-x: auto; /* Enable horizontal scrolling */
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+}
+
+/* Very small screens (below 768px) - Mobile phones */
+@media (max-width: 767px) {
+  .financial-table {
+    font-size: 10px;
+    min-width: 600px; /* Minimum width for mobile */
+  }
+  .financial-table th,
+  .financial-table td {
+    padding: 3px;
+    line-height: 1.2;
+  }
+  .table-view {
+    padding: 10px;
+    overflow-x: auto; /* Enable horizontal scrolling on mobile */
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+  .table-title {
+    font-size: 1.2rem;
+  }
+}

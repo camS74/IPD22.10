@@ -1,0 +1,50 @@
+**********************
+PowerShell transcript start
+Start time: 20251017130641
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\IPD 9.10\upload-to-github.ps1
+Process ID: 26092
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\IPD 9.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'server/data/sales-reps-config.json', LF will be replaced by CRLF the next time Git touc
+hes it
+warning: in the working copy of 'server/database/UniversalSalesByCountryService.js', LF will be replaced by CRLF the nex
+t time Git touches it
+warning: in the working copy of 'src/components/dashboard/Dashboard.js', LF will be replaced by CRLF the next time Git t
+ouches it
+warning: in the working copy of 'src/components/dashboard/MultiChartHTMLExport.js', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesBySalesRepDivisional.js', LF will be replaced by CRLF the
+ next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 74, done.
+Counting objects: 100% (74/74), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (40/40), done.
+Writing objects: 100% (40/40), 26.32 KiB | 549.00 KiB/s, done.
+Total 40 (delta 33), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (33/33), completed with 33 local objects.
+To https://github.com/camS74/IPD26.9.git
+   85710f2..deca091  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251017130708
+**********************

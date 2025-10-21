@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Wide to Long Format Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+        .file-input {
+            display: none;
+        }
+        .upload-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background-color: #cce7ff;
+            color: #004085;
+            border: 1px solid #b0d4ff;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        .download-btn:hover {
+            background-color: #218838;
+        }
+        .download-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .stats {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .stats h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .sample-data {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Excel Wide to Long Format Converter</h1>
+        
+        <div class="status info">
+            <strong>Instructions:</strong><br>
+            1. Upload your Excel file using the area below<br>
+            2. The tool will automatically detect identifier columns and value columns (months/periods)<br>
+            3. Each row will be converted to multiple rows (one for each month/period)<br>
+            4. Download the converted file
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <p>📁 Drop your Excel file here or click to browse</p>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Choose File
+            </button>
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" />
+        </div>
+        
+        <div id="processingStatus" class="hidden">
+            <div class="status info">
+                🔄 Processing your file...
+            </div>
+        </div>
+        
+        <div id="results" class="hidden">
+            <div class="status success">
+                ✅ Your file has been successfully converted from wide format to long format!
+            </div>
+            
+            <div class="stats">
+                <h3>Conversion Summary</h3>
+                <div class="grid">
+                    <div>
+                        <strong>Original Format:</strong><br>
+                        • <span id="originalRows">-</span> rows<br>
+                        • <span id="originalCols">-</span> columns<br>
+                        • Periods as columns (1, 2, 3...12)
+                    </div>
+                    <div>
+                        <strong>Long Format:</strong><br>
+                        • <span id="longRows">-</span> rows<br>
+                        • <span id="longCols">-</span> columns<br>
+                        • Periods as rows with values
+                    </div>
+                </div>
+            </div>
+            
+            <button class="download-btn" id="downloadBtn" onclick="downloadConvertedFile()">
+                📥 Download Converted File
+            </button>
+            
+            <div class="status info">
+                <strong>What changed:</strong><br>
+                • Each original row now becomes multiple rows (one for each month/period)<br>
+                • Month names (January, February, etc.) or periods are now in a "month" column (first column)<br>
+                • Values are now in a single "value" column<br>
+                • All identifier columns (salesrepname, customername, etc.) remain unchanged
+            </div>
+            
+            <div class="stats">
+                <h3>Sample of Converted Data</h3>
+                <div class="sample-data" id="sampleData">
+                    Processing...
+                </div>
+            </div>
+        </div>
+        
+        <div id="errorMessage" class="status error hidden">
+            ❌ Error processing file. Please make sure it's a valid Excel file with the expected format.
+        </div>
+    </div>
+
+    <script>
+        let convertedData = null;
+        let originalFileName = '';
+        let isProcessing = false;
+        
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        uploadArea.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+                // Clear the input to allow re-uploading the same file
+                e.target.value = '';
+            }
+        });
+        
+        function handleFile(file) {
+            // Prevent multiple uploads
+            if (isProcessing) {
+                console.log('Already processing a file, please wait...');
+                return;
+            }
+            
+            // Validate file type
+            const validTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel',
+                'application/octet-stream' // Some browsers use this for Excel files
+            ];
+            
+            if (!validTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls)$/i)) {
+                showError('Please select a valid Excel file (.xlsx or .xls)');
+                return;
+            }
+            
+            isProcessing = true;
+            originalFileName = file.name;
+            
+            // Show processing status
+            document.getElementById('processingStatus').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    processExcelFile(e.target.result);
+                } catch (error) {
+                    console.error('Error processing file:', error);
+                    showError(error.message);
+                } finally {
+                    isProcessing = false;
+                }
+            };
+            reader.onerror = function(error) {
+                console.error('File reading error:', error);
+                showError('Error reading the file. Please try again.');
+                isProcessing = false;
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function processExcelFile(arrayBuffer) {
+            try {
+                // Read the Excel file
+                const workbook = XLSX.read(arrayBuffer);
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(worksheet);
+                
+                if (data.length === 0) {
+                    throw new Error('No data found in the file');
+                }
+                
+                // Get all column names from the first row
+                const allColumns = Object.keys(data[0]);
+                
+                // Define possible identifier columns (these will be preserved)
+                const possibleIdColumns = [
+                    'salesrepname', 'customername', 'countryname', 'productgroup', 
+                    'material', 'process', 'values_type', 'pgcombine', 'product_group',
+                    'sales_rep', 'customer', 'country', 'product_group_combine'
+                ];
+                
+                // Identify identifier columns (columns that exist in our data)
+                const idColumns = allColumns.filter(col => 
+                    possibleIdColumns.some(idCol => 
+                        col.toLowerCase().includes(idCol.toLowerCase())
+                    )
+                );
+                
+                // Identify value columns (months or periods)
+                const monthNames = [
+                    'january', 'february', 'march', 'april', 'may', 'june',
+                    'july', 'august', 'september', 'october', 'november', 'december'
+                ];
+                
+                const valueColumns = allColumns.filter(col => {
+                    const colLower = col.toLowerCase();
+                    // Check if it's a month name
+                    if (monthNames.includes(colLower)) return true;
+                    // Check if it's a numeric period (1-12)
+                    if (/^[1-9]|1[0-2]$/.test(col)) return true;
+                    // Check if it's a quarter (Q1, Q2, Q3, Q4)
+                    if (/^Q[1-4]$/i.test(col)) return true;
+                    // Check if it's a year-month format (2024_01, 2024_02, etc.)
+                    if (/^\d{4}_\d{2}$/.test(col)) return true;
+                    return false;
+                });
+                
+                console.log('Detected identifier columns:', idColumns);
+                console.log('Detected value columns:', valueColumns);
+                
+                if (valueColumns.length === 0) {
+                    throw new Error('No value columns (months/periods) found in the file');
+                }
+                
+                // Convert to long format
+                const longData = [];
+                
+                data.forEach(row => {
+                    const identifiers = {};
+                    idColumns.forEach(col => {
+                        identifiers[col] = row[col] || '';
+                    });
+                    
+                    valueColumns.forEach(col => {
+                        if (col in row) {
+                            longData.push({
+                                month: col,
+                                ...identifiers,
+                                value: row[col] || 0
+                            });
+                        }
+                    });
+                });
+                
+                convertedData = longData;
+                
+                // Update UI
+                document.getElementById('processingStatus').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+                
+                // Update stats
+                document.getElementById('originalRows').textContent = data.length.toLocaleString();
+                document.getElementById('originalCols').textContent = Object.keys(data[0]).length;
+                document.getElementById('longRows').textContent = longData.length.toLocaleString();
+                document.getElementById('longCols').textContent = Object.keys(longData[0]).length;
+                
+                // Show sample data
+                showSampleData(data[0], longData.slice(0, 5), idColumns, valueColumns);
+                
+                // Reset processing state
+                isProcessing = false;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            }
+        }
+        
+        function showSampleData(originalSample, longSample, idColumns, valueColumns) {
+            const sampleDiv = document.getElementById('sampleData');
+            
+            let html = '<strong>Before (Wide Format):</strong><br>';
+            html += `Identifier columns: ${idColumns.join(' | ')}<br>`;
+            html += `Value columns: ${valueColumns.join(' | ')}<br><br>`;
+            
+            // Show sample of original data
+            const sampleIdValues = idColumns.map(col => originalSample[col] || 'N/A').join(' | ');
+            const sampleValueValues = valueColumns.slice(0, 4).map(col => originalSample[col] || 0).join(' | ');
+            html += `${sampleIdValues} | ${sampleValueValues} | ...<br><br>`;
+            
+            html += '<strong>After (Long Format):</strong><br>';
+            html += `month | ${idColumns.join(' | ')} | value<br>`;
+            longSample.forEach(row => {
+                const idValues = idColumns.map(col => row[col] || 'N/A').join(' | ');
+                html += `${row.month} | ${idValues} | ${row.value}<br>`;
+            });
+            
+            sampleDiv.innerHTML = html;
+        }
+        
+        function showError(message = 'Error processing file. Please make sure it\'s a valid Excel file with the expected format.') {
+            document.getElementById('processingStatus').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = `❌ ${message}`;
+            errorDiv.classList.remove('hidden');
+            isProcessing = false;
+        }
+        
+        function downloadConvertedFile() {
+            if (!convertedData) {
+                alert('No data to download. Please upload a file first.');
+                return;
+            }
+            
+            try {
+                // Create new workbook
+                const newWorkbook = XLSX.utils.book_new();
+                const newWorksheet = XLSX.utils.json_to_sheet(convertedData);
+                XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, 'Long_Format_Data');
+                
+                // Generate filename
+                const baseName = originalFileName.replace(/\.[^/.]+$/, '');
+                const fileName = `${baseName}_Long_Format.xlsx`;
+                
+                // Download the file
+                XLSX.writeFile(newWorkbook, fileName);
+                
+                alert(`✅ File downloaded successfully!\nFile name: ${fileName}`);
+                
+            } catch (error) {
+                console.error('Error downloading file:', error);
+                alert('❌ Error downloading file. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

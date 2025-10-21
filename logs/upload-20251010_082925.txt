@@ -1,0 +1,52 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20251010082925
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File upload-to-github.ps1 -NoPause
+Process ID: 28568
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\IPD 9.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+git : fatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.
+At D:\IPD 9.10\upload-to-github.ps1:64 char:21
++         $current = (git rev-parse --abbrev-ref HEAD) 2>$null
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: ambiguou...e working tree.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+[INFO] Making initial commit with existing files...
+
+git : fatal: a branch named 'main' already exists
+At D:\IPD 9.10\upload-to-github.ps1:82 char:9
++         git checkout -b main 2>$null | Out-Null
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: a branch... already exists:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[FAIL] Push failed.
+If the remote isn't empty, try:
+    git fetch origin
+    git pull --rebase origin main
+    git push -u origin main
+[FAIL] Error: git push failed
+**********************
+Windows PowerShell transcript end
+End time: 20251010083004
+**********************

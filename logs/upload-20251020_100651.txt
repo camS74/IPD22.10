@@ -1,0 +1,53 @@
+**********************
+PowerShell transcript start
+Start time: 20251020100651
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\IPD 9.10\upload-to-github.ps1
+Process ID: 27212
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\IPD 9.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/dashboard/SalesBySaleRepTable.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesBySalesRepDivisional.js', LF will be replaced by CRLF the
+ next time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesRepHTMLExport.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/CustomerKeyFactsNew.js', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'src/components/reports/ExecutiveSummary.js', LF will be replaced by CRLF the next time
+Git touches it
+warning: in the working copy of 'src/components/reports/PerformanceDashboard.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/ProductGroupKeyFacts.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/reports/SalesRepReport.js', LF will be replaced by CRLF the next time Gi
+t touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Compressing objects: 100% (42/42), done.
+Writing objects: 100% (42/42), 24.64 KiB | 600.00 KiB/s, done.
+Total 42 (delta 36), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (36/36), completed with 35 local objects.
+To https://github.com/camS74/IPD26.9.git
+   e9688dc..307296f  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251020100709
+**********************

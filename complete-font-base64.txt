@@ -1,0 +1,1 @@
+At line:1 char:112+ ... lic\assets\font.woff2');  = [System.Convert]::ToBase64String(); Write ...+                                                                  ~An expression was expected after '('.    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordEx    ception    + FullyQualifiedErrorId : ExpectedExpression 

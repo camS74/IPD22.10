@@ -1,0 +1,11 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.ps1]
+@="PowerShellScript"
+
+[HKEY_CLASSES_ROOT\PowerShellScript]
+@="PowerShell Script"
+
+[HKEY_CLASSES_ROOT\PowerShellScript\Shell\Open\Command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"%1\""
+

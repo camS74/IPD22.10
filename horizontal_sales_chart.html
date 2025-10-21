@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Product Groups - Sales MT Comparison (HY1 vs Budgets)</title>
+<style>
+  :root{
+    --yellow:#F1C40F;
+    --blue-dark:#1B4F72;
+    --blue-light:#5DADE2;
+    --green:#16a34a;
+    --red:#dc2626;
+    --text:#111827;
+    --muted:#6b7280;
+    --bg:#ffffff;
+    --panel:#f9fafb;
+    --border:#e5e7eb;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    color:var(--text);
+    background:var(--bg);
+  }
+  .container{
+    max-width:1050px;
+    margin:24px auto 80px;
+    padding:24px;
+  }
+  h1{
+    margin:0 0 6px;
+    text-align:center;
+    font-size:26px;
+    font-weight:800;
+  }
+  .legend, .summary, .scale{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+    margin:18px 0 28px;
+  }
+  .legend-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:18px;
+  }
+  .legend h3{
+    font-size:14px;
+    margin:0 0 10px;
+  }
+  .legend-row{
+    display:flex; align-items:center; gap:8px; margin:8px 0;
+  }
+  .swatch{ width:16px; height:16px; border-radius:4px; }
+  .muted{ color:var(--muted); font-size:13px; }
+  .rows{ margin-top:8px; }
+  .row{
+    padding:14px 0 18px;
+    border-bottom:1px dashed var(--border);
+  }
+  .row.total{ 
+    border-top:2px solid #94a3b8; 
+    background:#eef6ff;
+    border-bottom:0;
+    padding:18px 12px;
+    border-radius:12px;
+    margin-top:12px;
+  }
+  .pg{ font-size:14px; font-weight:700; color:#374151; margin:0 0 10px 2px;}
+  .bars{ display:flex; flex-direction:column; gap:8px; }
+  .barline{
+    display:flex; align-items:center; gap:10px;
+  }
+  .track{
+    flex:1; height:22px; background:#f3f4f6; border-radius:8px; position:relative; overflow:hidden;
+    border:1px solid #e5e7eb;
+  }
+  .fill{
+    height:100%; border-radius:8px; transition:width .3s ease;
+  }
+  .label{
+    position:absolute; left:8px; top:50%; transform:translateY(-50%);
+    font-size:12px; font-weight:600;
+  }
+  .label.dark{ color:#111827; }
+  .label.light{ color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.15); }
+  .metrics{
+    width:160px; text-align:right; font-size:12px;
+  }
+  .metrics .title{ color:#6b7280; }
+  .metrics .pct{ font-weight:800; }
+  .metrics .delta{ font-size:12px; }
+  .scale{
+    font-size:12px; color:#6b7280;
+  }
+  .scale .ticks{
+    display:flex; justify-content:space-between; gap:8px; margin-top:6px; padding-top:8px; border-top:1px solid var(--border);
+  }
+  .summary h3{ margin:0 0 10px; color:#1e40af }
+  .summary .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .pill{
+    display:inline-block; padding:2px 8px; border-radius:999px; font-weight:700; font-size:12px;
+  }
+  .pill.green{ background:#dcfce7; color:#166534; }
+  .pill.red{ background:#fee2e2; color:#991b1b; }
+  @media (max-width: 720px){
+    .legend-grid{ grid-template-columns: 1fr; }
+    .metrics{ width:120px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Product Groups - Sales MT Comparison</h1>
+    <div style="display:flex;justify-content:center;margin:8px 0 16px;font-size:22px" aria-hidden="true">⭐</div>
+
+    <!-- Legend (kept) -->
+    <section class="legend">
+      <div class="legend-grid">
+        <div>
+          <h3>Bar Legend</h3>
+          <div class="legend-row">
+            <span class="swatch" style="background:var(--yellow)"></span>
+            <span class="muted">2025 HY1 Actual</span>
+          </div>
+          <div class="legend-row">
+            <span class="swatch" style="background:var(--blue-dark)"></span>
+            <span class="muted">2025 HY1 Budget</span>
+          </div>
+          <div class="legend-row">
+            <span class="swatch" style="background:var(--blue-light)"></span>
+            <span class="muted">2025 Year Budget</span>
+          </div>
+        </div>
+        <div>
+          <h3>Delta Calculations</h3>
+          <div class="muted">• HY1 Actual vs HY1 Budget: <code>HY1 Actual − HY1 Budget</code></div>
+          <div class="muted">• HY1 Actual vs FY Budget: <code>HY1 Actual − FY Budget</code></div>
+          <div class="muted" style="margin-top:8px">
+            <span class="pill green">Green: Positive</span>
+            <span class="pill red" style="margin-left:6px">Red: Negative</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart rows will render here -->
+    <section id="rows" class="rows"></section>
+
+    <!-- Scale -->
+    <section id="scale" class="scale" aria-label="Scale reference">
+      <div class="ticks" id="ticks"></div>
+    </section>
+
+    <!-- Summary -->
+    <section class="summary" id="summary">
+      <h3>Summary</h3>
+      <div class="grid">
+        <div>
+          <strong>Total HY1 vs HY1 Budget:</strong>
+          <span id="sumDeltaH1VSB" class="pill" style="margin-left:8px"></span>
+        </div>
+        <div>
+          <strong>Total HY1 vs FY Budget:</strong>
+          <span id="sumDeltaH1VSFY" class="pill" style="margin-left:8px"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+// ===== FULL JAVASCRIPT (no external dependencies) =====
+
+// ---- Data (in KG to match your original inputs) ----
+const baseData = [
+  { productGroup: 'Commercial Items Plain', hy1Actual: 28414,  hy1Budget: 0,      yearBudget: 0 },
+  { productGroup: 'Industrial Items Plain', hy1Actual: 0,      hy1Budget: 2000,   yearBudget: 6000 },
+  { productGroup: 'Industrial Items Printed', hy1Actual: 143799, hy1Budget: 120000, yearBudget: 270000 },
+  { productGroup: 'Shrink Film Plain',      hy1Actual: 40855,  hy1Budget: 71000,  yearBudget: 140000 },
+  { productGroup: 'Shrink Film Printed',    hy1Actual: 640637, hy1Budget: 845000, yearBudget: 1670000 },
+  { productGroup: 'Shrink Sleeves',         hy1Actual: 4888,   hy1Budget: 2499,   yearBudget: 4998 },
+  { productGroup: 'Wrap Around Label',      hy1Actual: 24,     hy1Budget: 0,      yearBudget: 0 }
+];
+
+const totals = { productGroup: 'Total', hy1Actual: 858615, hy1Budget: 1040499, yearBudget: 2090998 };
+
+// ---- Helpers ----
+function toMT(kg){ return kg / 1000; }
+function formatMT(v){
+  if (!isFinite(v)) return '0';
+  if (Math.abs(v) < 0.05) return '0';
+  return v.toFixed(1) + ' MT';
+}
+function formatDelta(v){
+  const sign = v >= 0 ? '+' : '';
+  return sign + v.toFixed(1) + ' MT';
+}
+function formatPercent(v){
+  if (!isFinite(v)) return '0%';
+  return v.toFixed(1) + '%';
+}
+
+// ---- Enrich rows ----
+function enrich(item){
+  const hy1ActualMT = toMT(item.hy1Actual);
+  const hy1BudgetMT = toMT(item.hy1Budget);
+  const yearBudgetMT = toMT(item.yearBudget);
+
+  const deltaHY1Budget = toMT(item.hy1Actual - item.hy1Budget);
+  const deltaFYBudget  = toMT(item.hy1Actual - item.yearBudget);
+
+  const percentHY1Budget = item.hy1Budget > 0 ? (item.hy1Actual / item.hy1Budget * 100) : (item.hy1Actual > 0 ? 100 : 0);
+  const percentFYBudget  = item.yearBudget > 0 ? (item.hy1Actual / item.yearBudget * 100) : (item.hy1Actual > 0 ? 100 : 0);
+
+  return {
+    ...item,
+    hy1ActualMT, hy1BudgetMT, yearBudgetMT,
+    deltaHY1Budget, deltaFYBudget,
+    percentHY1Budget, percentFYBudget
+  };
+}
+
+const rows = baseData.map(enrich);
+const totalsEnriched = enrich(totals);
+
+const allForScale = [...rows, totalsEnriched];
+const maxValue = Math.max(...allForScale.map(r => Math.max(r.hy1ActualMT, r.hy1BudgetMT, r.yearBudgetMT))) * 1.05;
+
+// ---- DOM builders ----
+function makeEl(tag, attrs={}, children=[]){
+  const el = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v]) => {
+    if (k === 'class') el.className = v;
+    else if (k === 'style') Object.assign(el.style, v);
+    else el.setAttribute(k, v);
+  });
+  (Array.isArray(children) ? children : [children]).forEach(c => {
+    if (typeof c === 'string') el.appendChild(document.createTextNode(c));
+    else if (c) el.appendChild(c);
+  });
+  return el;
+}
+
+function barLine(widthPct, color, valueMT, labelColorMode){
+  const track = makeEl('div', { class:'track' });
+  const fill  = makeEl('div', { class:'fill', style:{ width: widthPct + '%', background: color }});
+  const label = makeEl('span', { class:'label ' + (labelColorMode === 'light' ? 'light' : 'dark') }, formatMT(valueMT));
+  track.appendChild(fill);
+  if (valueMT > 0) track.appendChild(label);
+  return track;
+}
+
+function metricsBlock(titleText, pctValue, deltaValue, showBaselineOnly){
+  const cont = makeEl('div', { class:'metrics' });
+  if (showBaselineOnly){
+    cont.append(
+      makeEl('div', { class:'title' }, 'Baseline')
+    );
+    return cont;
+  }
+  cont.append(
+    makeEl('div', { class:'title' }, titleText),
+    makeEl('div', { class:'pct', style:{ color: (pctValue >= 100 ? '#16a34a' : '#dc2626') } }, formatPercent(pctValue)),
+    makeEl('div', { class:'delta', style:{ color: (deltaValue >= 0 ? '#16a34a' : '#dc2626') } }, formatDelta(deltaValue))
+  );
+  return cont;
+}
+
+function productRow(item, isTotal=false){
+  const wrap = makeEl('div', { class:'row' + (isTotal ? ' total' : '') });
+
+  // Title
+  wrap.appendChild(makeEl('div', { class:'pg' }, item.productGroup));
+
+  // Bars (Important: NO period labels under product groups; legend is enough)
+  const bars = makeEl('div', { class:'bars' });
+
+  // HY1 Actual (Yellow)
+  const actualWidth = maxValue > 0 ? (item.hy1ActualMT / maxValue) * 100 : 0;
+  const bl1 = makeEl('div', { class:'barline' }, [
+    barLine(actualWidth, 'var(--yellow)', item.hy1ActualMT, 'dark'),
+    metricsBlock('vs HY1 Budget:', item.percentHY1Budget, item.deltaHY1Budget, false)
+  ]);
+  bars.appendChild(bl1);
+
+  // HY1 Budget (Dark Blue) — baseline only
+  const budgetWidth = maxValue > 0 ? (item.hy1BudgetMT / maxValue) * 100 : 0;
+  const bl2 = makeEl('div', { class:'barline' }, [
+    barLine(budgetWidth, 'var(--blue-dark)', item.hy1BudgetMT, 'light'),
+    metricsBlock('', 0, 0, true)
+  ]);
+  bars.appendChild(bl2);
+
+  // FY Budget (Light Blue)
+  const yearWidth = maxValue > 0 ? (item.yearBudgetMT / maxValue) * 100 : 0;
+  const bl3 = makeEl('div', { class:'barline' }, [
+    barLine(yearWidth, 'var(--blue-light)', item.yearBudgetMT, 'light'),
+    metricsBlock('vs FY Budget:', item.percentFYBudget, item.deltaFYBudget, false)
+  ]);
+  bars.appendChild(bl3);
+
+  wrap.appendChild(bars);
+  return wrap;
+}
+
+// ---- Render ----
+const rowsRoot = document.getElementById('rows');
+rows.forEach(r => rowsRoot.appendChild(productRow(r, false)));
+rowsRoot.appendChild(productRow(totalsEnriched, true));
+
+// Scale ticks
+const ticksRoot = document.getElementById('ticks');
+const tickVals = [0, 0.25, 0.5, 0.75, 1.0].map(p => Math.round(maxValue * p));
+['0 MT', ...tickVals.slice(1).map(v => v + ' MT')].forEach(t => ticksRoot.appendChild(makeEl('span', {}, t)));
+
+// Summary totals
+function setPill(el, delta){
+  el.textContent = formatDelta(delta);
+  el.className = 'pill ' + (delta >= 0 ? 'green' : 'red');
+}
+setPill(document.getElementById('sumDeltaH1VSB'), toMT(totals.hy1Actual - totals.hy1Budget));
+setPill(document.getElementById('sumDeltaH1VSFY'), toMT(totals.hy1Actual - totals.yearBudget));
+
+</script>
+</body>
+</html>

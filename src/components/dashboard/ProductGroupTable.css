@@ -1,0 +1,116 @@
+/* ProductGroupTable.css */
+.product-group-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+  display: table !important;
+  font-family: 'DejaVu Sans', 'Segoe UI', Arial, sans-serif !important;
+  color: #222222 !important;
+  font-size: 13px !important;
+}
+
+.product-group-table thead {
+  display: table-header-group !important;
+}
+
+.product-group-table tbody {
+  display: table-row-group !important;
+}
+
+.product-group-table tr {
+  display: table-row !important;
+}
+
+.product-group-table th,
+.product-group-table td {
+  display: table-cell !important;
+  border: 1px solid #ddd !important;
+  text-align: center !important;
+  padding: 8px !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  line-height: 1.25 !important;
+}
+
+/* Header base, actual colors are set inline from JS helper */
+.product-group-table th { font-weight: 700; font-size: 14px !important; }
+
+/* Ensure the first header cell (Product Group) stays white and independent of schemes */
+.product-group-table th.empty-header {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ddd !important;
+}
+
+.row-label {
+  text-align: left !important;
+  background-color: #f8f9fa !important;
+  font-weight: 600 !important;
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+}
+
+.product-header {
+  background-color: #bbdefb !important;
+  color: #0d47a1 !important;
+  font-weight: bold !important;
+}
+
+/* Product Group header highlight (distinct from material/process/total) */
+.pg-header-row td {
+  background-color: #546E7A !important; /* blue-gray, distinct from period colors */
+  color: #FFFFFF !important;
+  border: none !important;
+  font-weight: 700 !important;
+}
+
+.metric-cell {
+  /* Allow inline background color (lighter period color) to show */
+  background-color: transparent;
+  text-align: center !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #222222; /* allow inline color to override for deltas */
+  font-weight: 400 !important;
+}
+
+/* Data matrix cells inherit lighter period color, deltas use inline color */
+
+/* Delta columns styling */
+.product-group-table td.delta-cell {
+  background-color: #f8f9fa !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+}
+
+/* Section header color schemes */
+.total-header-row td {
+  background-color: #4527A0 !important; /* deep purple, not used by periods */
+  color: #FFFFFF !important;
+  border: none !important;
+  font-weight: 700 !important;
+}
+
+.material-header-row td {
+  background-color: #C62828 !important; /* solid red */
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+.process-header-row td {
+  background-color: #FBC02D !important; /* solid yellow */
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Page title styling - consistent with other pages */
+.table-title h2 {
+  text-align: center;
+  font-size: 1.5rem;  /* Consistent 24px */
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 8px 0;
+}

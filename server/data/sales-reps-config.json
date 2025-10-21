@@ -1,0 +1,80 @@
+{
+  "FP": {
+    "defaults": [],
+    "selection": [
+      "Christopher Dela Cruz",
+      "MOUHCINE FELLAH",
+      "Sofiane Salah",
+      "Narek Koroukian",
+      "Direct Sales",
+      "Direct Sales F&b",
+      "Sojy Jose Ukken",
+      "Harwal Company Limited"
+    ],
+    "groups": {
+      "Sofiane & Morocco": [
+        "MOUHCINE FELLAH",
+        "Sofiane Salah"
+      ],
+      "Sojy & Direct Sales": [
+        "Direct Sales",
+        "Direct Sales F&b",
+        "Sojy Jose Ukken",
+        "Harwal Company Limited",
+        "TINU SAM"
+      ],
+      "Riad & Nidal": [
+        "Riad Al Zier",
+        "Nidal Hanan",
+        "Direct Sales – Riad"
+      ],
+      "Rania Sleem": [
+        "Rania",
+        "Rania Sleem",
+        "James Kassab(Rania)"
+      ],
+      "Others": [
+        "Roshdy Ezzelarab",
+        "Rehanuddin Ahmed",
+        "Recina Bacal",
+        "Realyn Esguerra",
+        "Ramsheed Aruthundiyil",
+        "Ramesh T Rangasamy",
+        "Ramana Swargam",
+        "Prasad-Horeca",
+        "Mohammed Hisham",
+        "Mohamed Katbi",
+        "Meguerditch Kaychian",
+        "Mary Grace Alarma",
+        "Kailash",
+        "Jamal Abdul Al",
+        "Hosam Mohamed Selim",
+        "Horeca-Temp",
+        "Haseeb",
+        "Dinah Gantalao Cuevas",
+        "Adam Ali Khattab",
+        "(Blank)",
+        "Ara Bayramian",
+        "Saravanan Vetha",
+        "Vincent Menezes",
+        "Waseem-Horeca",
+        "Waseem Mazhar"
+      ]
+    }
+  },
+  "SB": {
+    "defaults": [],
+    "selection": [],
+    "groups": {}
+  },
+  "TF": {
+    "defaults": [],
+    "selection": [],
+    "groups": {}
+  },
+  "HCM": {
+    "defaults": [],
+    "selection": [],
+    "groups": {}
+  }
+}

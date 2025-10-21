@@ -1,0 +1,31 @@
+[33mcommit 739d840bd4b648f4f7086143cf3e0b836c468521[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: camS74 <46988482+camS74@users.noreply.github.com>
+Date:   Sun Sep 21 14:22:48 2025 +0400
+
+    Initial commit: IPD Dashboard with Customer Grouping System
+    
+    Features:
+    - React-based dashboard with multiple views
+    - Customer grouping and merging functionality
+    - Sales data visualization by country and sales rep
+    - Interactive customer selection and grouping
+    - Database persistence for customer merge rules
+    - Manual customer grouping (no fuzzy matching)
+    - Group management with add/delete functionality
+    
+    Components:
+    - Dashboard with KPI cards
+    - Sales by sales rep tables
+    - Customer grouping interface
+    - Interactive customer selection
+    - Group management system
+    
+    Technical Stack:
+    - React.js frontend
+    - Node.js backend
+    - PostgreSQL database
+    - Customer merge rules system
+    - RESTful API endpoints
+
+upload-to-github-fixed.ps1
+upload-to-github.ps1
