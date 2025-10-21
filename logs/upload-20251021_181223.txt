@@ -28,3 +28,4 @@ At D:\IPD21.10\upload-to-github.ps1:64 char:21
     + FullyQualifiedErrorId : NativeCommandError
 Use '--' to separate paths from revisions, like this:
 'git <command> [<revision>...] -- [<file>...]'
+[INFO] Making initial commit with existing files...
