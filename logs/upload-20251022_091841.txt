@@ -19,3 +19,27 @@ SerializationVersion: 1.1.0.1
 [INFO] Working directory: D:\IPD21.10
 [ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
 [ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'Upload-To-GitHub.cmd', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'upload-to-github.bat', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'upload-to-github.ps1', LF will be replaced by CRLF the next time Git touches it
+[WARN] Updating remote 'origin' from https://github.com/camS74/IPD26.9.git -> https://github.com/camS74/IPD22.10.git
+[INFO] Pushing to origin/main...
+To https://github.com/camS74/IPD22.10.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/camS74/IPD22.10.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+[FAIL] Push failed.
+If the remote isn't empty, try:
+    git fetch origin
+    git pull --rebase origin main
+    git push -u origin main
+[FAIL] Error: git push failed
+**********************
+Windows PowerShell transcript end
+End time: 20251022091849
+**********************
