@@ -4,13 +4,13 @@
  - Keeps the window OPEN at the end so you can see output.
  - Writes a transcript log to .\logs\upload-YYYYMMDD_HHMMSS.txt (best effort)
 
- Repo: https://github.com/camS74/IPD26.9.git
+ Repo: https://github.com/camS74/IPD22.10.git
 #>
 
 [CmdletBinding()]
 param(
     [string]$Message = "chore: sync upload",
-    [string]$RepoUrl = "https://github.com/camS74/IPD26.9.git",
+    [string]$RepoUrl = "https://github.com/camS74/IPD22.10.git",
     [switch]$NoPause # if set, do not pause at the end
 )
 

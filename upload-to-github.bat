@@ -7,7 +7,7 @@ powershell -Command "& {Write-Host '✅ PowerShell is available' -ForegroundColo
 
 REM Run the PowerShell script
 echo 📝 Executing upload script...
-powershell -ExecutionPolicy Bypass -File "upload-to-github.ps1"
+powershell -ExecutionPolicy Bypass -File "upload-to-github.ps1" -RepoUrl "https://github.com/camS74/IPD22.10.git"
 
 echo.
 echo 📋 Upload process completed!

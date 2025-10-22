@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set SCRIPT=%~dp0Upload-To-GitHub.ps1
+set SCRIPT=%~dp0upload-to-github.ps1
 if not exist "%SCRIPT%" (
   echo [FAIL] Cannot find Upload-To-GitHub.ps1 next to this file.
   pause
