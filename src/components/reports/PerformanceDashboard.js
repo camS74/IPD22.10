@@ -27,7 +27,7 @@ const PerformanceDashboard = ({ reportData, kgsData, amountData, customerAmountD
     if (onStrategicFindingsCalculated) {
       onStrategicFindingsCalculated(findings);
     }
-  }, [onStrategicFindingsCalculated]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle customer findings calculated by CustomerKeyFacts
   const handleCustomerFindingsCalculated = React.useCallback((findings) => {
@@ -36,7 +36,7 @@ const PerformanceDashboard = ({ reportData, kgsData, amountData, customerAmountD
     if (onCustomerFindingsCalculated) {
       onCustomerFindingsCalculated(findings);
     }
-  }, [onCustomerFindingsCalculated]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Build enhanced reportData with proper period information like SalesRepReport
   const enhancedReportData = React.useMemo(() => {

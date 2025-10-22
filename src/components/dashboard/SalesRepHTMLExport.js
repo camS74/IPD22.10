@@ -437,8 +437,6 @@ const SalesRepHTMLExport = ({
       return '<p style="text-align: center; color: #666;">No customer data available</p>';
     }
     
-    console.log('📊 Generating Customers Performance Tab with findings:', customerFindings);
-    
     const columnOrder = reportData.columnOrder;
     
     // Build extended columns with delta columns (same as live component)
@@ -782,393 +780,315 @@ const SalesRepHTMLExport = ({
       `;
     }
     
-    // Helper functions for formatting
-    const formatMTDisplay = (num) => {
-      if (num == null || isNaN(num)) return 'N/A';
-      const mt = num / 1000;
-      if (mt >= 1000) return Math.round(mt).toLocaleString() + ' MT';
-      if (mt >= 100) return Math.round(mt) + ' MT';
-      return mt.toFixed(1) + ' MT';
+    // Extract ALL data from customerFindings - NO RECALCULATION
+    const {
+      totals,
+      vsBudget,
+      yoy,
+      vsBudgetAmount,
+      yoyAmount,
+      runRateInfo,
+      focusCustomers,
+      growthDrivers,
+      underperformers,
+      coveragePct,
+      concentrationRisk,
+      retentionAnalysis,
+      hasPreviousYearData,
+      comprehensiveInsights,
+      executiveSummary
+    } = customerFindings;
+
+    const { totalActual, totalAmountActual } = totals;
+    const topCoverage = (coveragePct || 0) * 100;
+
+    // Helper formatting functions - match live component
+    const formatPct = (val) => {
+      if (val == null || isNaN(val)) return 'N/A';
+      const sign = val >= 0 ? '+' : '';
+      return `${sign}${val.toFixed(1)}%`;
     };
-    
-    const formatPercentage = (num) => {
-      if (num == null || isNaN(num)) return 'N/A';
-      const sign = num >= 0 ? '+' : '';
-      return `${sign}${num.toFixed(1)}%`;
+
+    const formatMt = (kgs) => {
+      if (kgs == null || isNaN(kgs)) return '0 MT';
+      const mt = kgs / 1000;
+      return mt >= 1000 ? `${Math.round(mt).toLocaleString()} MT` :
+             mt >= 100 ? `${Math.round(mt)} MT` :
+             `${mt.toFixed(1)} MT`;
     };
-    
-    // Extract data from findings (now includes both volume and sales data)
-    const { totals, vsBudget, yoy, vsBudgetAmount, yoyAmount, hasPreviousYearData, concentrationRisk, retentionAnalysis, focusCustomers, growthDrivers, underperformers } = customerFindings;
-    const { totalActual, totalBudget, totalPrev, totalAmountActual, totalAmountBudget, totalAmountPrev } = totals;
-    const topCoverage = (customerFindings.coveragePct || 0) * 100;
-    
-    // Helper functions for formatting (same as Product Groups Strategic Analysis)
-    const formatAmountDisplay = (num) => {
-      if (num == null || isNaN(num)) return 'N/A';
-      const millions = num / 1000000;
-      if (millions >= 1) return `${getUAEDirhamSymbolHTML()}${millions.toFixed(1)}M`;
-      const thousands = num / 1000;
-      if (thousands >= 1) return `${getUAEDirhamSymbolHTML()}${thousands.toFixed(0)}K`;
-      return `${getUAEDirhamSymbolHTML()}${Math.round(num).toLocaleString()}`;
+
+    const formatCustomerName = (name) => {
+      if (!name) return '';
+      return name.split(' ').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ');
     };
     
     const strategicAnalysisHTML = `
       <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px; padding: 24px; margin: 20px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
-        <div style="display: block; text-align: center; width: 100%;">
-          <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin: 0 0 24px 0; background: linear-gradient(135deg, #7c3aed, #5b21b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-            Customer Key Facts
-          </h2>
-        </div>
-        
-        <!-- Portfolio KPIs -->
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 16px;">
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Total Volume</div>
-            <div style="font-size: 18px; font-weight: 700; color: #111827;">${formatMTDisplay(totalActual)}</div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Total Sales</div>
-            <div style="font-size: 18px; font-weight: 700; color: #111827;">${formatAmountDisplay(totalAmountActual || 0)}</div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Volume Vs Budget</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${vsBudget !== null ? (vsBudget >= 0 ? '#059669' : '#dc2626') : '#111827'};">
-              ${vsBudget !== null ? formatPercentage(vsBudget) : 'N/A'}
-            </div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Sales Vs Budget</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${vsBudgetAmount !== null ? (vsBudgetAmount >= 0 ? '#059669' : '#dc2626') : '#111827'};">
-              ${vsBudgetAmount !== null ? formatPercentage(vsBudgetAmount) : 'N/A'}
-            </div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Volume YoY</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${hasPreviousYearData && yoy !== null ? (yoy >= 0 ? '#059669' : '#dc2626') : '#6b7280'};">
-              ${hasPreviousYearData && yoy !== null ? formatPercentage(yoy) : 'No Data'}
-            </div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Sales YoY</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${hasPreviousYearData && yoyAmount !== null ? (yoyAmount >= 0 ? '#059669' : '#dc2626') : '#6b7280'};">
-              ${hasPreviousYearData && yoyAmount !== null ? formatPercentage(yoyAmount) : 'No Data'}
-            </div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); text-align: center;">
-            <div style="font-size: 12px; color: #6b7280;">Top Coverage</div>
-            <div style="font-size: 18px; font-weight: 700; color: #111827;">${topCoverage.toFixed(1)}%</div>
-          </div>
-        </div>
-        
-        <!-- Executive Summary -->
-        <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-          <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">📊 Executive Summary</h4>
+        <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center; background: linear-gradient(135deg, #3b82f6, #1e40af); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Customer Key Facts</h2>
+
+        <!-- Executive Overview -->
+        <div style="background: #ffffff; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">📊 Executive Overview</h4>
           <div style="padding: 12px 16px; background: #eff6ff; border-radius: 8px; margin-bottom: 12px; font-size: 15px; line-height: 1.6; color: #1e40af; border-left: 3px solid #3b82f6;">
-            ${(() => {
-              const parts = [];
-              if (vsBudget != null) parts.push(`Volume: ${vsBudget >= 0 ? 'ahead' : 'behind'} budget by ${Math.abs(vsBudget).toFixed(1)}%`);
-              if (vsBudgetAmount != null) parts.push(`Sales: ${vsBudgetAmount >= 0 ? 'ahead' : 'behind'} budget by ${Math.abs(vsBudgetAmount).toFixed(1)}%`);
-              if (hasPreviousYearData && yoy != null) parts.push(`Volume YoY: ${yoy >= 0 ? 'up' : 'down'} ${Math.abs(yoy).toFixed(1)}%`);
-              if (hasPreviousYearData && yoyAmount != null) parts.push(`Sales YoY: ${yoyAmount >= 0 ? 'up' : 'down'} ${Math.abs(yoyAmount).toFixed(1)}%`);
-              if (!hasPreviousYearData) parts.push(`YoY: no data available`);
-              if (customerFindings.runRateInfo) parts.push(customerFindings.runRateInfo);
-              return parts.join('. ') + (parts.length ? '.' : '');
-            })()}
+            The customer portfolio demonstrates ${concentrationRisk.level === 'HIGH' || concentrationRisk.level === 'CRITICAL' ? 'remarkable concentration and strategic focus' : 'balanced distribution'}, with the top 3 customers commanding ${formatPct(concentrationRisk.top3Share * 100)} of total volume and the top 5 accounting for ${formatPct(concentrationRisk.top5Share * 100)}. This reveals a ${concentrationRisk.level === 'HIGH' || concentrationRisk.level === 'CRITICAL' ? 'highly focused B2B strategy' : 'diversified customer approach'} with ${concentrationRisk.customerCount} active customers generating an average of ${formatMt(concentrationRisk.avgVolumePerCustomer)} per customer.
+            ${executiveSummary.keyRisks.length > 0 ? `<br/><br/><strong>Key Risks:</strong> ${executiveSummary.keyRisks.join(', ')}` : ''}
+            ${executiveSummary.opportunities.length > 0 ? `<br/><strong>Opportunities:</strong> ${executiveSummary.opportunities.join(', ')}` : ''}
           </div>
         </div>
-        
-        <!-- Comprehensive Volume vs Sales Analysis -->
-        <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #059669;">
-          <h4 style="color: #059669; font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center;">📈 Volume vs Sales Performance Analysis</h4>
-          
-          ${(() => {
-            const insights = customerFindings.comprehensiveInsights;
-            if (!insights) return '<div style="color: #6b7280; text-align: center;">Analysis data not available</div>';
-            
-            const performanceDriver = insights.keyInsights.dominantDriver === 'volume' ? 'Volume-driven performance' : 'Sales-driven performance';
-            const hasGap = insights.keyInsights.hasSignificantGap;
-            const gapText = hasGap ? ` (${insights.keyInsights.performanceGap.toFixed(1)}% gap between volume and sales performance)` : '';
-            
-            const kiloRateTrend = insights.keyInsights.kiloRateTrend;
-            const kiloRateYoY = insights.volumeVsSalesPerformance.kiloRateYoY;
-            const kiloRateText = kiloRateYoY !== null ? 
-              ` (${kiloRateYoY > 0 ? '+' : ''}${kiloRateYoY.toFixed(1)}% YoY)` : '';
-            
-            return `
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div style="padding: 12px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #059669;">
-                  <div style="font-weight: 600; color: #059669; margin-bottom: 4px;">Performance Driver</div>
-                  <div style="font-size: 14px; color: #166534;">${performanceDriver}${gapText}</div>
-                </div>
-                <div style="padding: 12px; background: #fef3c7; border-radius: 8px; border-left: 3px solid #f59e0b;">
-                  <div style="font-weight: 600; color: #f59e0b; margin-bottom: 4px;">Kilo Rate Trend</div>
-                  <div style="font-size: 14px; color: #92400e;">${kiloRateTrend}${kiloRateText}</div>
-                </div>
+
+        ${comprehensiveInsights && comprehensiveInsights.customerAnalysis.length > 0 ? `
+          <!-- Volume vs Sales Performance -->
+          <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #059669; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="color: #059669; font-size: 18px; font-weight: 600; margin-bottom: 10px;">⚖️ Volume vs Sales Performance</h4>
+            <div style="padding: 12px; background: #f0fdf4; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #166534; margin-bottom: 12px;">
+              ${comprehensiveInsights.pvm.pvmAvailable ? `
+                <strong>Price-Volume-Mix Analysis:</strong><br/>
+                • Price Effect: ${formatPct(comprehensiveInsights.pvm.priceEffect)}<br/>
+                • Volume Effect: ${formatPct(comprehensiveInsights.pvm.volumeEffect)}<br/>
+                • Portfolio Kilo Rate: ${getUAEDirhamSymbolHTML()}${formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT (${hasPreviousYearData && comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY !== null ? formatPct(comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY) + ' YoY' : 'No YoY data'})
+              ` : `
+                <strong>Price-Volume Analysis:</strong><br/>
+                • Portfolio Kilo Rate: ${getUAEDirhamSymbolHTML()}${formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT<br/>
+                • PVM Analysis: Requires previous year or budget data for comparison
+              `}
+            </div>
+            ${comprehensiveInsights.advantageAnalysis.volumeAdvantage.length > 0 ? `
+              <div style="padding: 12px; background: #f0fdf4; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #166534; margin-bottom: 12px;">
+                <strong>Volume Advantage (Volume outperforming Sales):</strong><br/>
+                ${comprehensiveInsights.advantageAnalysis.volumeAdvantage.map(c => {
+                  const volumeShare = totals.totalActual > 0 ? ((c.volumeActual / totals.totalActual) * 100) : 0;
+                  const volumeMT = (c.volumeActual || 0) / 1000;
+                  return `• ${formatCustomerName(c.name)}: Vol ${formatPct(c.volumeVsBudget)} vs Sales ${formatPct(c.amountVsBudget)} (${formatPct(c.volumeVsBudget - c.amountVsBudget)} gap) [${volumeShare.toFixed(1)}% share, ${volumeMT.toFixed(0)}MT]`;
+                }).join('<br/>')}
               </div>
-              
-              <div style="padding: 12px; background: #eff6ff; border-radius: 8px; margin-bottom: 16px; border-left: 3px solid #3b82f6;">
-                <div style="font-weight: 600; color: #3b82f6; margin-bottom: 4px;">Customer Mix</div>
-                <div style="font-size: 14px; color: #1e40af;">
-                  ${insights.advantageAnalysis.volumeAdvantageCount} customers with volume advantage, 
-                  ${insights.advantageAnalysis.salesAdvantageCount} customers with sales advantage
-                </div>
+            ` : ''}
+            ${comprehensiveInsights.advantageAnalysis.salesAdvantage.length > 0 ? `
+              <div style="padding: 12px; background: #f0fdf4; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #166534; margin-bottom: 12px;">
+                <strong>Sales Advantage (Sales outperforming Volume):</strong><br/>
+                ${comprehensiveInsights.advantageAnalysis.salesAdvantage.map(c => {
+                  const volumeShare = totals.totalActual > 0 ? ((c.volumeActual / totals.totalActual) * 100) : 0;
+                  const volumeMT = (c.volumeActual || 0) / 1000;
+                  return `• ${formatCustomerName(c.name)}: Sales ${formatPct(c.amountVsBudget)} vs Vol ${formatPct(c.volumeVsBudget)} (${formatPct(c.amountVsBudget - c.volumeVsBudget)} premium) [${volumeShare.toFixed(1)}% share, ${volumeMT.toFixed(0)}MT]`;
+                }).join('<br/>')}
               </div>
-              
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                <div style="padding: 12px; background: #f0fdf4; border-radius: 8px; border: 1px solid #d1fae5;">
-                  <h5 style="margin: 0 0 8px 0; color: #059669; font-size: 14px;">🏆 Top Volume Performers</h5>
-                  ${insights.topPerformers.volume.slice(0, 3).map((customer, i) => `
-                    <div style="font-size: 12px; margin-bottom: 4px; color: #166534;">
-                      ${i + 1}. ${customer.name}: ${formatMTDisplay(customer.volume)}
-                      ${customer.performance.volumeVsSales === 'volume-driven' ? ' (Volume-driven)' : ''}
-                    </div>
-                  `).join('')}
-                </div>
-                
-                <div style="padding: 12px; background: #eff6ff; border-radius: 8px; border: 1px solid #dbeafe;">
-                  <h5 style="margin: 0 0 8px 0; color: #3b82f6; font-size: 14px;">💰 Top Sales Performers</h5>
-                  ${insights.topPerformers.sales.slice(0, 3).map((customer, i) => `
-                    <div style="font-size: 12px; margin-bottom: 4px; color: #1e40af;">
-                      ${i + 1}. ${customer.name}: ${formatAmountDisplay(customer.sales)}
-                      ${customer.performance.volumeVsSales === 'sales-driven' ? ' (Sales-driven)' : ''}
-                    </div>
-                  `).join('')}
-                </div>
+            ` : ''}
+            ${comprehensiveInsights.advantageAnalysis.volumeAdvantage.length === 0 && comprehensiveInsights.advantageAnalysis.salesAdvantage.length === 0 ? `
+              <div style="padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #666; font-style: italic;">
+                No customers meet materiality thresholds for advantage analysis (≥2% volume share, ≥10MT volume, ≥10% performance gap)
               </div>
-              
-              ${insights.topPerformers.kiloRate.length > 0 ? `
-                <div style="padding: 12px; background: #faf5ff; border-radius: 8px; border: 1px solid #e9d5ff;">
-                  <h5 style="margin: 0 0 8px 0; color: #7c3aed; font-size: 14px;">⭐ Kilo Rate Leaders</h5>
-                  ${insights.topPerformers.kiloRate.slice(0, 3).map((customer, i) => `
-                    <div style="font-size: 12px; margin-bottom: 4px; color: #6b21a8;">
-                      ${i + 1}. ${customer.name}: ${getUAEDirhamSymbolHTML()}${customer.kiloRate.toFixed(0)}
-                      ${customer.performance.kiloRateTrend === 'improving' ? ' (Improving)' : ''}
-                    </div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            `;
-          })()}
-        </div>
-        
+            ` : ''}
+          </div>
+        ` : ''}
+
+        ${hasPreviousYearData ? `
+          <!-- Multi-Period Trend Analysis -->
+          <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="color: #d97706; font-size: 18px; font-weight: 600; margin-bottom: 10px;">📈 Multi-Period Trend Analysis</h4>
+            <div style="padding: 12px; background: #fffbeb; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #92400e;">
+              <strong>3-Year Performance Trends:</strong><br/>
+              • Volume Growth: ${formatPct(yoy)} YoY<br/>
+              • Sales Growth: ${formatPct(yoyAmount)} YoY<br/>
+              • Price Realization: ${formatPct(comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY)} YoY
+              ${comprehensiveInsights.advantageAnalysis.outliers.length > 0 ? `<br/><br/><strong>Anomaly Detection (Statistical Outliers):</strong><br/>${comprehensiveInsights.advantageAnalysis.outliers.map(o => `• ${formatCustomerName(o.name)}: ${formatPct(o.yoyRate)} YoY (Z-score: ${o.zScore.toFixed(1)})`).join('<br/>')}` : ''}
+            </div>
+          </div>
+        ` : ''}
+
         <!-- Top Contributors -->
-        <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #7c3aed;">
-          <h4 style="color: #7c3aed; font-size: 18px; font-weight: 600; margin-bottom: 16px; text-align: center;">🏆 Top Contributors (by current volume)</h4>
-          ${(focusCustomers || []).slice(0, 10).map((c, i) => {
-            const vsBgt = c.vsBudget != null ? c.vsBudget : null;
-            const vsYoy = c.yoy != null ? c.yoy : null;
-            
-            return `
-              <div style="padding: 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 12px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                  <div style="width: 28px; height: 28px; border-radius: 6px; background: #1e40af; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                    ${i + 1}
-                  </div>
-                  <div style="font-weight: 700; font-size: 16px; color: #1f2937; flex: 1;">${c.name}</div>
+        <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h4 style="color: #7c3aed; font-size: 18px; font-weight: 600; margin-bottom: 10px;">🏆 Top Contributors</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+            <div>
+              <strong>By Volume:</strong>
+              ${comprehensiveInsights.topPerformers.volume.map((c, i) => `
+                <div style="display: flex; align-items: center; gap: 8px; padding: 6px; background: #f8fafc; border-radius: 6px; margin-top: 6px;">
+                  <div style="width: 24px; height: 24px; border-radius: 50%; background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${i + 1}</div>
+                  <div style="flex: 1; font-size: 13px; font-weight: 500;">${formatCustomerName(c.name)}</div>
+                  <div style="font-size: 12px; color: #666;">${formatMt(c.volume)}</div>
+                  <div style="font-size: 11px; color: #7c3aed; font-weight: 600;">${formatPct(c.share)}</div>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px;">
-                  <div>
-                    <strong>Volume</strong>
-                    <div>${formatMTDisplay(c.actual)} (${(c.share * 100).toFixed(1)}% share)</div>
-                  </div>
-                  ${vsBgt !== null ? `
-                    <div>
-                      <strong>Vs Budget</strong>
-                      <div style="color: ${vsBgt >= 0 ? '#059669' : '#dc2626'};">${(vsBgt >= 0 ? '+' : '')}${vsBgt.toFixed(1)}%</div>
-                    </div>
-                  ` : '<div><strong>Vs Budget</strong><div style="color: #6b7280;">N/A</div></div>'}
-                  ${hasPreviousYearData && vsYoy !== null ? `
-                    <div>
-                      <strong>YoY</strong>
-                      <div style="color: ${vsYoy >= 0 ? '#059669' : '#dc2626'};">${(vsYoy >= 0 ? '+' : '')}${vsYoy.toFixed(1)}%</div>
-                    </div>
-                  ` : ''}
-                  ${!hasPreviousYearData ? '<div><strong>YoY</strong><div style="color: #6b7280;">No Data</div></div>' : ''}
+              `).join('')}
+            </div>
+            <div>
+              <strong>By Sales:</strong>
+              ${comprehensiveInsights.topPerformers.sales.map((c, i) => `
+                <div style="display: flex; align-items: center; gap: 8px; padding: 6px; background: #f8fafc; border-radius: 6px; margin-top: 6px;">
+                  <div style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${i + 1}</div>
+                  <div style="flex: 1; font-size: 13px; font-weight: 500;">${formatCustomerName(c.name)}</div>
+                  <div style="font-size: 12px; color: #666;">${getUAEDirhamSymbolHTML()}${formatAED(c.amount)}</div>
+                  <div style="font-size: 11px; color: #3b82f6; font-weight: 600;">${formatPct(c.share)}</div>
                 </div>
-              </div>
-            `;
-          }).join('')}
+              `).join('')}
+            </div>
+          </div>
+          ${comprehensiveInsights.topPerformers.kiloRate.length > 0 ? `
+            <div style="padding: 12px; background: #faf5ff; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #6b21a8;">
+              <strong>Highest Kilo Rates (Min 1% volume share):</strong><br/>
+              ${comprehensiveInsights.topPerformers.kiloRate.map((c, index) =>
+                `${index > 0 ? '<br/>' : ''}• ${formatCustomerName(c.name)}: ${getUAEDirhamSymbolHTML()}${formatAED(c.kiloRate)}/MT (${formatMt(c.volume)})`
+              ).join('')}
+            </div>
+          ` : ''}
         </div>
-        
-        <!-- Concentration Risk Analysis -->
-        ${(() => {
-          const risk = concentrationRisk || {};
-          const riskLevel = risk.level || 'LOW';
-          const riskColor = riskLevel === 'HIGH' ? '#dc2626' : riskLevel === 'MEDIUM' ? '#f59e0b' : '#059669';
-          const riskIcon = riskLevel === 'HIGH' ? '🚨' : riskLevel === 'MEDIUM' ? '⚠️' : '✅';
-          const top1 = risk.top1Share || 0;
-          const top3 = risk.top3Share || 0;
-          const top5 = risk.top5Share || 0;
-          
-          return `
-            <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid ${riskColor}; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-              <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">
-                ${riskIcon} Customer Concentration Risk Analysis
-              </h4>
-              
-              <div style="padding: 12px 16px; background: ${riskLevel === 'HIGH' ? '#fef2f2' : riskLevel === 'MEDIUM' ? '#fffbeb' : '#f0fdf4'}; border-radius: 8px; margin-bottom: 12px; color: ${riskColor}; border-left: 3px solid ${riskColor};">
-                <strong>Risk Level: ${riskLevel}</strong>
-                ${riskLevel === 'HIGH' ? ' — High dependency on few customers poses significant business risk. Immediate diversification needed.' : ''}
-                ${riskLevel === 'MEDIUM' ? ' — Moderate concentration risk. Consider expanding customer base to reduce dependency.' : ''}
-                ${riskLevel === 'LOW' ? ' — Well-diversified customer portfolio with manageable concentration risk.' : ''}
-              </div>
-              
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
-                <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 500;">Active Customers</div>
-                  <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${risk.customerCount || 0}</div>
-                </div>
-                <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 500;">Top Customer Share</div>
-                  <div style="font-size: 16px; font-weight: 700; color: ${top1 >= 0.5 ? '#dc2626' : top1 >= 0.3 ? '#f59e0b' : '#059669'};">
-                    ${(top1 * 100).toFixed(1)}%
-                  </div>
-                </div>
-                <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 500;">Top 3 Share</div>
-                  <div style="font-size: 16px; font-weight: 700; color: ${top3 >= 0.8 ? '#dc2626' : top3 >= 0.6 ? '#f59e0b' : '#059669'};">
-                    ${(top3 * 100).toFixed(1)}%
-                  </div>
-                </div>
-                <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 500;">Top 5 Share</div>
-                  <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${(top5 * 100).toFixed(1)}%</div>
-                </div>
-              </div>
+
+        <!-- Concentration Risk -->
+        <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #ef4444; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h4 style="color: #dc2626; font-size: 18px; font-weight: 600; margin-bottom: 10px;">🎯 Concentration Risk Analysis</h4>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px;">
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Risk Level</div>
+              <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${concentrationRisk.level}</div>
             </div>
-          `;
-        })()}
-        
-        ${retentionAnalysis ? `
-          <!-- Customer Retention & Churn Analysis -->
-          <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid ${retentionAnalysis.retentionRisk === 'HIGH' ? '#dc2626' : retentionAnalysis.retentionRisk === 'MEDIUM' ? '#f59e0b' : '#059669'}; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-            <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">
-              ${retentionAnalysis.retentionRisk === 'HIGH' ? '🚨' : retentionAnalysis.retentionRisk === 'MEDIUM' ? '⚠️' : '✅'} Customer Retention & Churn Analysis
-            </h4>
-            
-            <div style="padding: 12px 16px; background: ${retentionAnalysis.retentionRisk === 'HIGH' ? '#fef2f2' : retentionAnalysis.retentionRisk === 'MEDIUM' ? '#fffbeb' : '#f0fdf4'}; border-radius: 8px; margin-bottom: 12px; color: ${retentionAnalysis.retentionRisk === 'HIGH' ? '#dc2626' : retentionAnalysis.retentionRisk === 'MEDIUM' ? '#d97706' : '#059669'}; border-left: 3px solid ${retentionAnalysis.retentionRisk === 'HIGH' ? '#dc2626' : retentionAnalysis.retentionRisk === 'MEDIUM' ? '#f59e0b' : '#059669'};">
-              <strong>Retention Risk Level: ${retentionAnalysis.retentionRisk}</strong>
-              ${retentionAnalysis.retentionRisk === 'HIGH' ? ' — High customer loss rate indicates significant retention challenges. Immediate action required.' : ''}
-              ${retentionAnalysis.retentionRisk === 'MEDIUM' ? ' — Moderate loss rate suggests room for improvement in customer retention strategies.' : ''}
-              ${retentionAnalysis.retentionRisk === 'LOW' ? ' — Strong customer retention with low loss rate. Continue current retention strategies.' : ''}
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Top Customer</div>
+              <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${formatPct(concentrationRisk.top1Share * 100)}</div>
             </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Top 3 Share</div>
+              <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${formatPct(concentrationRisk.top3Share * 100)}</div>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
+              <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Active Customers</div>
+              <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${concentrationRisk.customerCount}</div>
+            </div>
+          </div>
+          <div style="padding: 12px; background: #fef2f2; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #991b1b;">
+            <strong>Top 5 Customers by Volume:</strong><br/>
+            ${concentrationRisk.topCustomers.map((c, i) =>
+              `${i + 1}. ${formatCustomerName(c.name)}: ${formatMt(c.volume)} (${formatPct(c.share * 100)})`
+            ).join('<br/>')}
+          </div>
+        </div>
+
+        ${hasPreviousYearData ? `
+          <!-- Customer Retention & Churn -->
+          <div style="background: white; border-radius: 10px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="color: #7c3aed; font-size: 18px; font-weight: 600; margin-bottom: 10px;">🔄 Customer Retention & Churn Analysis</h4>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
               <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
                 <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Retention Rate</div>
                 <div style="font-size: 16px; font-weight: 700; color: ${retentionAnalysis.retentionRate >= 0.85 ? '#059669' : retentionAnalysis.retentionRate >= 0.7 ? '#f59e0b' : '#dc2626'};">
-                  ${(retentionAnalysis.retentionRate * 100).toFixed(1)}%
+                  ${formatPct(retentionAnalysis.retentionRate * 100)}
                 </div>
               </div>
               <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
-                <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Loss Rate</div>
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Churn Rate</div>
                 <div style="font-size: 16px; font-weight: 700; color: ${retentionAnalysis.churnRate >= 0.3 ? '#dc2626' : retentionAnalysis.churnRate >= 0.15 ? '#f59e0b' : '#059669'};">
-                  ${(retentionAnalysis.churnRate * 100).toFixed(1)}%
+                  ${formatPct(retentionAnalysis.churnRate * 100)}
                 </div>
               </div>
               <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
-                <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Retained Customers</div>
-                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${retentionAnalysis.retainedCount}</div>
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Lost Customers</div>
+                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${retentionAnalysis.lostCustomers}</div>
               </div>
               <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; text-align: center;">
                 <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">New Customers</div>
-                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${retentionAnalysis.newCount}</div>
+                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">${retentionAnalysis.newCustomers}</div>
               </div>
             </div>
-            
-            ${retentionAnalysis.lostCustomers.length > 0 ? `
-              <div style="margin-bottom: 12px;">
-                <h5 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Lost Customers</h5>
-                ${retentionAnalysis.lostCustomers.map((name, i) => `
-                  <div style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; margin-bottom: 6px; border: 1px solid #e5e7eb; border-left: 3px solid #dc2626;">
-                    <div style="width: 24px; height: 24px; border-radius: 4px; background: #dc2626; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${i + 1}</div>
-                    <span style="flex: 1; font-weight: 600; font-size: 14px; color: #1f2937;">${name}</span>
-                    <span style="color: #dc2626; font-weight: 600;">Lost</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : ''}
-            
-            ${retentionAnalysis.newCustomers.length > 0 ? `
-              <div>
-                <h5 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">New Customers</h5>
-                ${retentionAnalysis.newCustomers.map((name, i) => `
-                  <div style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #f8fafc; border-radius: 6px; margin-bottom: 6px; border: 1px solid #e5e7eb; border-left: 3px solid #059669;">
-                    <div style="width: 24px; height: 24px; border-radius: 4px; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">${i + 1}</div>
-                    <span style="flex: 1; font-weight: 600; font-size: 14px; color: #1f2937;">${name}</span>
-                    <span style="color: #059669; font-weight: 600;">New</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : ''}
           </div>
         ` : ''}
-        
-        ${(growthDrivers && growthDrivers.length > 0) || (underperformers && underperformers.length > 0) ? `
+
+        ${(growthDrivers.length > 0 || underperformers.length > 0) ? `
           <!-- Growth Drivers / Underperformers -->
-          <div style="display: grid; grid-template-columns: ${(growthDrivers && growthDrivers.length > 0) && (underperformers && underperformers.length > 0) ? 'repeat(2, minmax(0,1fr))' : '1fr'}; gap: 12px; margin-bottom: 16px;">
-            ${growthDrivers && growthDrivers.length > 0 ? `
+          <div style="display: grid; grid-template-columns: ${growthDrivers.length > 0 && underperformers.length > 0 ? '1fr 1fr' : '1fr'}; gap: 16px; margin-bottom: 16px;">
+            ${growthDrivers.length > 0 ? `
               <div style="background: white; border-radius: 10px; padding: 16px; border-left: 4px solid #059669; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">🚀 Growth Drivers</h4>
-                ${growthDrivers.map(c => {
-                  const vsBgt = c.vsBudget;
-                  const vsYoy = c.yoy;
-                  return `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px;">
-                      <div style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></div>
-                      <strong>${c.name}</strong> — ${formatMTDisplay(c.actual)}
-                      ${vsBgt != null ? ` | ${(vsBgt >= 0 ? '+' : '')}${vsBgt.toFixed(1)}% vs budget` : ''}
-                      ${hasPreviousYearData && vsYoy != null ? ` | ${(vsYoy >= 0 ? '+' : '')}${vsYoy.toFixed(1)}% YoY` : ''}
-                      ${!hasPreviousYearData ? ' | No YoY data' : ''}
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <div style="font-size: 24px;">🚀</div>
+                  <h4 style="color: #059669; font-size: 18px; font-weight: 600; margin: 0;">Growth Drivers</h4>
+                  <div style="background: #059669; color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 600;">${growthDrivers.length}</div>
+                </div>
+                ${growthDrivers.map((c, i) => `
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f0fdf4; border-radius: 8px; margin-bottom: 8px; border: 1px solid #d1fae5;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">${i + 1}</div>
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; color: #065f46; font-size: 14px; margin-bottom: 4px;">${formatCustomerName(c.name)}</div>
+                      <div style="font-size: 12px; color: #059669; display: flex; gap: 12px; flex-wrap: wrap;">
+                        <span>${formatMt(c.actual)}</span>
+                        ${c.vsBudget != null ? `<span>${formatPct(c.vsBudget)} vs budget</span>` : ''}
+                        ${hasPreviousYearData && c.yoy != null ? `<span>${formatPct(c.yoy)} YoY</span>` : ''}
+                        ${!hasPreviousYearData ? `<span style="color: #6b7280;">No YoY data</span>` : ''}
+                      </div>
                     </div>
-                  `;
-                }).join('')}
+                    <div style="font-size: 18px;">📈</div>
+                  </div>
+                `).join('')}
               </div>
             ` : ''}
-            
-            ${underperformers && underperformers.length > 0 ? `
+            ${underperformers.length > 0 ? `
               <div style="background: white; border-radius: 10px; padding: 16px; border-left: 4px solid #dc2626; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">⚠️ Underperformers</h4>
-                ${underperformers.map(c => {
-                  const vsBgt = c.vsBudget;
-                  const vsYoy = c.yoy;
-                  return `
-                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px;">
-                      <div style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></div>
-                      <strong>${c.name}</strong> — ${formatMTDisplay(c.actual)}
-                      ${vsBgt != null ? ` | ${(vsBgt >= 0 ? '+' : '')}${vsBgt.toFixed(1)}% vs budget` : ''}
-                      ${hasPreviousYearData && vsYoy != null ? ` | ${(vsYoy >= 0 ? '+' : '')}${vsYoy.toFixed(1)}% YoY` : ''}
-                      ${!hasPreviousYearData ? ' | No YoY data' : ''}
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <div style="font-size: 24px;">⚠️</div>
+                  <h4 style="color: #dc2626; font-size: 18px; font-weight: 600; margin: 0;">Underperformers</h4>
+                  <div style="background: #dc2626; color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 600;">${underperformers.length}</div>
+                </div>
+                ${underperformers.map((c, i) => `
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #fef2f2; border-radius: 8px; margin-bottom: 8px; border: 1px solid #fecaca;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: #dc2626; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600;">${i + 1}</div>
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; color: #991b1b; font-size: 14px; margin-bottom: 4px;">${formatCustomerName(c.name)}</div>
+                      <div style="font-size: 12px; color: #dc2626; display: flex; gap: 12px; flex-wrap: wrap;">
+                        <span>${formatMt(c.actual)}</span>
+                        ${c.vsBudget != null ? `<span>${formatPct(c.vsBudget)} vs budget</span>` : ''}
+                        ${hasPreviousYearData && c.yoy != null ? `<span>${formatPct(c.yoy)} YoY</span>` : ''}
+                        ${!hasPreviousYearData ? `<span style="color: #6b7280;">No YoY data</span>` : ''}
+                      </div>
                     </div>
-                  `;
-                }).join('')}
+                    <div style="font-size: 18px;">📉</div>
+                  </div>
+                `).join('')}
               </div>
             ` : ''}
           </div>
         ` : ''}
-        
+
         <!-- Strategic Priorities -->
         <div style="background: white; border-radius: 10px; padding: 16px; border-left: 4px solid #3b82f6; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-          <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">💡 Strategic Priorities</h4>
+          <h4 style="color: #1e40af; font-size: 18px; font-weight: 600; margin-bottom: 10px;">🎯 Strategic Priorities</h4>
           <div style="display: grid; gap: 8px;">
-            ${underperformers && underperformers.length > 0 ? `
-              <div style="background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px; border-radius: 8px; font-size: 14px;">
-                Address shortfalls with priority customers representing ${(underperformers.reduce((s,c)=>s+(c.share||0),0)*100).toFixed(1)}% share via targeted plans.
+            ${runRateInfo && !runRateInfo.isOnTrack ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                📈 <strong>Accelerate Performance:</strong> Need ${formatMt(runRateInfo.catchUpRequired)}/month to meet FY target
               </div>
             ` : ''}
-            ${growthDrivers && growthDrivers.length > 0 ? `
-              <div style="background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px; border-radius: 8px; font-size: 14px;">
-                Double down on momentum accounts (share ${(growthDrivers.reduce((s,c)=>s+(c.share||0),0)*100).toFixed(1)}%) with focused allocation.
+            ${(concentrationRisk.level === 'HIGH' || concentrationRisk.level === 'CRITICAL') ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                ⚖️ <strong>Diversify Portfolio:</strong> High concentration risk - develop smaller customers
               </div>
             ` : ''}
-            <div style="background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px; border-radius: 8px; font-size: 14px;">
-              Monitor concentration risk: top set covers ${topCoverage.toFixed(1)}% of volume.
-            </div>
+            ${hasPreviousYearData && retentionAnalysis.churnRate > 0.2 ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                🔒 <strong>Improve Retention:</strong> ${formatPct(retentionAnalysis.churnRate * 100)} churn rate needs attention
+              </div>
+            ` : ''}
+            ${comprehensiveInsights.advantageAnalysis.volumeAdvantage.length > 0 ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                💰 <strong>Price Optimization:</strong> ${comprehensiveInsights.advantageAnalysis.volumeAdvantage.length} customers show volume-sales gaps
+              </div>
+            ` : ''}
+            ${comprehensiveInsights.advantageAnalysis.salesAdvantage.length > 0 ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                💎 <strong>Premium Strategy:</strong> ${comprehensiveInsights.advantageAnalysis.salesAdvantage.length} customers show strong pricing power
+              </div>
+            ` : ''}
+            ${focusCustomers.length > 0 ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                🎯 <strong>Focus Customers:</strong> ${focusCustomers.length} customers need immediate attention for budget achievement
+              </div>
+            ` : ''}
+            ${growthDrivers.length > 0 ? `
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 10px; border-radius: 8px; font-size: 14px;">
+                🚀 <strong>Growth Drivers:</strong> Leverage ${growthDrivers.length} high-performing customers for expansion
+              </div>
+            ` : ''}
           </div>
         </div>
       </div>
     `;
-    
+
     return `
       ${customerTableHTML}
       ${customerAmountTableHTML}
@@ -2228,10 +2148,22 @@ const SalesRepHTMLExport = ({
   const handleExport = async () => {
     console.log('🔥 Sales Rep HTML Export started');
     console.log('📊 Report Data:', reportData);
+    console.log('📊 Strategic Findings:', strategicFindings);
+    console.log('👥 Customer Findings:', customerFindings);
     console.log('🌍 Geographic Distribution Data:', reportData?.geographicDistribution);
-    if (reportType === 'individual' && !strategicFindings) {
-      console.warn('⏳ Skipping export: strategicFindings not ready');
-      return;
+
+    // Check if all required data is ready before proceeding
+    if (reportType === 'individual') {
+      if (!strategicFindings) {
+        console.warn('⏳ Skipping export: strategicFindings not ready');
+        alert('Export cannot proceed: Product group analysis is still being calculated. Please wait a moment and try again.');
+        return;
+      }
+      if (!customerFindings) {
+        console.warn('⏳ Skipping export: customerFindings not ready');
+        alert('Export cannot proceed: Customer analysis is still being calculated. Please wait a moment and try again.');
+        return;
+      }
     }
     setIsExporting(true);
     
@@ -3856,7 +3788,9 @@ const SalesRepHTMLExport = ({
       
     } catch (error) {
       console.error('❌ Sales Rep HTML export failed:', error);
-      alert('Export failed. Please try again.');
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
+      alert(`Export failed: ${error.message}. Check console for details.`);
     } finally {
       setIsExporting(false);
     }

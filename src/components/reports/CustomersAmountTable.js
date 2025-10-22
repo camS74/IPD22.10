@@ -7,7 +7,7 @@ const CustomersAmountTable = ({ customerAmountData }) => {
 
   // Dispatch event to notify CustomerKeyFacts that amount data is ready
   useEffect(() => {
-    if (customerAmountData && customerAmountData.length > 0) {
+    if (customerAmountData && customerAmountData.length > 0 && columnOrder && columnOrder.length > 0) {
       window.dispatchEvent(new CustomEvent('customersAmountTable:dataReady', {
         detail: {
           rows: customerAmountData,
@@ -15,7 +15,7 @@ const CustomersAmountTable = ({ customerAmountData }) => {
         }
       }));
     }
-  }, [customerAmountData, columnOrder]);
+  }, [customerAmountData]); // Only depend on customerAmountData, columnOrder comes from context
 
   // Helper function to convert text to proper case
   const toProperCase = (text) => {

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(Test-Path \"D:\\Projects\\IPD22.10\\server\\node_modules\")",
+      "Bash(if [ -d \"D:\\Projects\\IPD22.10\\node_modules\" ])",
+      "Bash(then echo \"exists\")",
+      "Bash(else echo \"missing\")",
+      "Bash(fi)",
+      "Bash(if [ -d \"D:\\Projects\\IPD22.10\\server\\node_modules\" ])",
+      "Bash(npm install:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(node replace_customer_key_facts.js:*)",
+      "Bash(npx eslint:*)",
+      "Bash(timeout 10 npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

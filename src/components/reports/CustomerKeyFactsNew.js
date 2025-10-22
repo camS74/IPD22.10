@@ -35,6 +35,20 @@ const normalize = (s) => (s || '').toString().trim().toLowerCase();
 const stripMergeMark = (s) => (s || '').replace(/\*+$/,'').trim();
 const keyName = (s) => normalize(stripMergeMark(s));
 
+// Convert to Proper Case (Title Case)
+const toProperCase = (s) => {
+  if (!s) return '';
+  return s
+    .toString()
+    .trim()
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const formatCustomerName = (name) => toProperCase(stripMergeMark(name));
+
 const formatPct = (n) => (n == null ? 'N/A' : `${Math.abs(n).toFixed(1)}%`);
 
 const formatMt = (kgs) => {
@@ -128,8 +142,6 @@ const columnToMonths = (column) => {
   };
   return map[column.month] || [1];
 };
-
-const toProperCase = (str) => (str || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 
 // ============================== API HELPERS ==================================
 const applySavedMergeRules = async (salesRep, division, customers) => {
@@ -310,12 +322,18 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
     }
 
     const budgetIndex = findBudgetIndex(columnOrder, basePeriodIndex);
-    const previousYearIndex = columnOrder.findIndex(c => c?.year === (columnOrder[basePeriodIndex]?.year - 1) && normalize(c?.month) === normalize(columnOrder[basePeriodIndex]?.month));
-    const ytdCurrentIndex = columnOrder.findIndex(c => isYTDCol(c) && c?.year === columnOrder[basePeriodIndex]?.year);
-    const ytdPreviousIndex = columnOrder.findIndex(c => isYTDCol(c) && c?.year === (columnOrder[basePeriodIndex]?.year - 1));
-    const fyCurrentIndex = columnOrder.findIndex(c => isFYCol(c) && c?.year === columnOrder[basePeriodIndex]?.year);
-    const fyPreviousIndex = columnOrder.findIndex(c => isFYCol(c) && c?.year === (columnOrder[basePeriodIndex]?.year - 1));
-    const fyBudgetIndex = columnOrder.findIndex(c => isBudgetColGeneric(c) && c?.year === columnOrder[basePeriodIndex]?.year && (isFYCol(c) || normalize(c?.month) === 'fy'));
+
+    // FIX: Convert years to numbers to handle string/number comparison
+    const baseYear = Number(columnOrder[basePeriodIndex]?.year);
+    const targetYear = baseYear - 1;
+    const targetMonth = normalize(columnOrder[basePeriodIndex]?.month);
+
+    const previousYearIndex = columnOrder.findIndex(c => Number(c?.year) === targetYear && normalize(c?.month) === targetMonth);
+    const ytdCurrentIndex = columnOrder.findIndex(c => isYTDCol(c) && Number(c?.year) === baseYear);
+    const ytdPreviousIndex = columnOrder.findIndex(c => isYTDCol(c) && Number(c?.year) === targetYear);
+    const fyCurrentIndex = columnOrder.findIndex(c => isFYCol(c) && Number(c?.year) === baseYear);
+    const fyPreviousIndex = columnOrder.findIndex(c => isFYCol(c) && Number(c?.year) === targetYear);
+    const fyBudgetIndex = columnOrder.findIndex(c => isBudgetColGeneric(c) && Number(c?.year) === baseYear && (isFYCol(c) || normalize(c?.month) === 'fy'));
 
     const totalActual = safeSumAt(basePeriodIndex, finalRows);
     const totalBudget = safeSumAt(budgetIndex, finalRows);
@@ -545,7 +563,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
       const retentionRate = totalPrevCust > 0 ? (retained.length / totalPrevCust) : 0;
       const churnRate = totalPrevCust > 0 ? (lost.length / totalPrevCust) : 0;
       const retentionRisk = churnRate >= 0.3 ? 'HIGH' : churnRate >= 0.15 ? 'MEDIUM' : 'LOW';
-      retentionAnalysis = { retentionRate, churnRate, retainedCustomers: retained.length, lostCustomers: lost.length, newCustomers: added.length, totalPreviousCustomers: totalPrevCust, lostCustomerNames: lost.map(c=>stripMergeMark(c.name)).slice(0,5), newCustomerNames: added.map(c=>stripMergeMark(c.name)).slice(0,5), retentionRisk };
+      retentionAnalysis = { retentionRate, churnRate, retainedCustomers: retained.length, lostCustomers: lost.length, newCustomers: added.length, totalPreviousCustomers: totalPrevCust, lostCustomerNames: lost.map(c=>formatCustomerName(c.name)).slice(0,5), newCustomerNames: added.map(c=>formatCustomerName(c.name)).slice(0,5), retentionRisk };
     }
 
     // Variances
@@ -648,7 +666,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
     else if (top1CustomerShare > 0.3 || top3CustomerShare > 0.7) concentrationRiskLevel = 'HIGH';
     else if (top1CustomerShare > 0.2 || top3CustomerShare > 0.5) concentrationRiskLevel = 'MEDIUM';
 
-    const hasPreviousYearData = previousYearIndex >= 0 && totalPrev > 0;
+    const hasPreviousYearData = previousYearIndex >= 0 && totalPrev > 0 && totalAmountPrev > 0;
 
     // Executive summary
     const executiveSummary = {
@@ -758,8 +776,6 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
     <div style={styles.container}>
       <h3 style={styles.title}>Customer Key Facts</h3>
 
-
-
       {/* Executive Summary */}
       <div style={styles.section}>
         <h4 style={styles.sectionTitle}>📊 Executive Overview</h4>
@@ -785,8 +801,8 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
                 <strong>Price-Volume-Mix Analysis:</strong><br/>
                 • Price Effect: {formatPct(comprehensiveInsights.pvm.priceEffect)}<br/>
                 • Volume Effect: {formatPct(comprehensiveInsights.pvm.volumeEffect)}<br/>
-                • Portfolio Kilo Rate: <UAEDirhamSymbol />{formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT 
-                ({hasPreviousYearData ? `${formatPct(comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY)} YoY` : 'No YoY data'})
+                • Portfolio Kilo Rate: <UAEDirhamSymbol />{formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT
+                ({hasPreviousYearData && comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY !== null ? `${formatPct(comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY)} YoY` : 'No YoY data'})
               </>
             ) : (
               <>
@@ -803,7 +819,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
               {comprehensiveInsights.advantageAnalysis.volumeAdvantage.map(c => {
                 const volumeShare = totals.totalActual > 0 ? ((c.volumeActual / totals.totalActual) * 100) : 0;
                 const volumeMT = (c.volumeActual || 0) / 1000;
-                return `• ${stripMergeMark(c.name)}: Vol ${formatPct(c.volumeVsBudget)} vs Sales ${formatPct(c.amountVsBudget)} (${formatPct(c.volumeVsBudget - c.amountVsBudget)} gap) [${volumeShare.toFixed(1)}% share, ${volumeMT.toFixed(0)}MT]`;
+                return `• ${formatCustomerName(c.name)}: Vol ${formatPct(c.volumeVsBudget)} vs Sales ${formatPct(c.amountVsBudget)} (${formatPct(c.volumeVsBudget - c.amountVsBudget)} gap) [${volumeShare.toFixed(1)}% share, ${volumeMT.toFixed(0)}MT]`;
               }).join('<br/>')}
             </div>
           )}
@@ -814,7 +830,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
               {comprehensiveInsights.advantageAnalysis.salesAdvantage.map(c => {
                 const volumeShare = totals.totalActual > 0 ? ((c.volumeActual / totals.totalActual) * 100) : 0;
                 const volumeMT = (c.volumeActual || 0) / 1000;
-                return `• ${stripMergeMark(c.name)}: Sales ${formatPct(c.amountVsBudget)} vs Vol ${formatPct(c.volumeVsBudget)} (${formatPct(c.amountVsBudget - c.volumeVsBudget)} premium) [${volumeShare.toFixed(1)}% share, ${volumeMT.toFixed(0)}MT]`;
+                return `• ${formatCustomerName(c.name)}: Sales ${formatPct(c.amountVsBudget)} vs Vol ${formatPct(c.volumeVsBudget)} (${formatPct(c.amountVsBudget - c.volumeVsBudget)} premium) [${volumeShare.toFixed(1)}% share, ${volumeMT.toFixed(0)}MT]`;
               }).join('<br/>')}
             </div>
           )}
@@ -840,7 +856,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
               <>
                 <br/><strong>Anomaly Detection (Statistical Outliers):</strong><br/>
                 {comprehensiveInsights.advantageAnalysis.outliers.map(o => 
-                  `• ${stripMergeMark(o.name)}: ${formatPct(o.yoyRate)} YoY (Z-score: ${o.zScore.toFixed(1)})`
+                  `• ${formatCustomerName(o.name)}: ${formatPct(o.yoyRate)} YoY (Z-score: ${o.zScore.toFixed(1)})`
                 ).join('<br/>')}
               </>
             )}
@@ -857,7 +873,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
             {comprehensiveInsights.topPerformers.volume.map((c, i) => (
               <div key={c.name} style={styles.topCustomerItem}>
                 <div style={styles.customerRank}>{i + 1}</div>
-                <div style={styles.customerNameSmall}>{stripMergeMark(c.name)}</div>
+                <div style={styles.customerNameSmall}>{formatCustomerName(c.name)}</div>
                 <div style={styles.customerVolume}>{formatMt(c.volume)}</div>
                 <div style={styles.customerShare}>{formatPct(c.share)}</div>
               </div>
@@ -868,7 +884,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
             {comprehensiveInsights.topPerformers.sales.map((c, i) => (
               <div key={c.name} style={styles.topCustomerItem}>
                 <div style={styles.customerRank}>{i + 1}</div>
-                <div style={styles.customerNameSmall}>{stripMergeMark(c.name)}</div>
+                <div style={styles.customerNameSmall}>{formatCustomerName(c.name)}</div>
                 <div style={styles.customerVolume}>{formatAmountString(c.amount)}</div>
                 <div style={styles.customerShare}>{formatPct(c.share)}</div>
               </div>
@@ -882,7 +898,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
             {comprehensiveInsights.topPerformers.kiloRate.map((c, index) => (
               <React.Fragment key={c.name}>
                 {index > 0 && <br/>}
-                • {stripMergeMark(c.name)}: <UAEDirhamSymbol />{formatAED(c.kiloRate)}/MT ({formatMt(c.volume)})
+                • {formatCustomerName(c.name)}: <UAEDirhamSymbol />{formatAED(c.kiloRate)}/MT ({formatMt(c.volume)})
               </React.Fragment>
             ))}
           </div>
@@ -902,7 +918,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
           <strong>Top 5 Customers by Volume:</strong><br/>
           {concentrationRisk.topCustomers.map((c, i) => (
             <div key={i}>
-              {i + 1}. {stripMergeMark(c.name)}: {formatMt(c.volume)} ({formatPct(c.share * 100)})
+              {i + 1}. {formatCustomerName(c.name)}: {formatMt(c.volume)} ({formatPct(c.share * 100)})
             </div>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import { useExcelData } from './ExcelDataContext';
 
 const FilterContext = createContext();
@@ -470,8 +470,8 @@ export const FilterProvider = ({ children }) => {
     }
   };
 
-  // Values to expose in the context
-  const value = {
+  // Values to expose in the context - MEMOIZED to prevent infinite re-renders
+  const value = useMemo(() => ({
     availableFilters,
     columnOrder,
     updateColumnOrder,
@@ -499,7 +499,33 @@ export const FilterProvider = ({ children }) => {
     setSelectedColumn,
     // expose selectedDivision so dashboard radio selection is available everywhere
     selectedDivision
-  };
+  }), [
+    availableFilters,
+    columnOrder,
+    updateColumnOrder,
+    addColumn,
+    removeColumn,
+    clearAllColumns,
+    generateData,
+    dataGenerated,
+    fullYear,
+    quarters,
+    saveAsStandardSelection,
+    clearStandardSelection,
+    basePeriodIndex,
+    setBasePeriod,
+    clearBasePeriod,
+    chartVisibleColumns,
+    toggleChartColumnVisibility,
+    isColumnVisibleInChart,
+    areMonthsSequential,
+    formatMonthRange,
+    createCustomRange,
+    selectedColumnIndex,
+    setSelectedColumnIndex,
+    setSelectedColumn,
+    selectedDivision
+  ]);
   
   return (
     <FilterContext.Provider value={value}>
