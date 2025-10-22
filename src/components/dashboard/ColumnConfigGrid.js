@@ -15,7 +15,7 @@ const colorSchemes = [
   { name: 'boldContrast', label: 'Bold Contrast', isDark: true }
 ];
 
-const ColumnConfigGrid = ({ exportPdfFunction, productGroupTableRef }) => {
+const ColumnConfigGrid = ({ productGroupTableRef }) => {
   const { 
     columnOrder, 
     updateColumnOrder, 
@@ -333,14 +333,6 @@ const ColumnConfigGrid = ({ exportPdfFunction, productGroupTableRef }) => {
       </div>
       {/* Add Generate Complete Report buttons at the bottom */}
       <div className="export-buttons-container">
-        <button 
-          className="export-btn pdf-export" 
-          onClick={exportPdfFunction}
-          disabled={!exportPdfFunction || !dataGenerated}
-          title={!dataGenerated ? "Please generate data first" : !exportPdfFunction ? "Charts are loading..." : "Export all charts to PDF"}
-        >
-          PDF Report
-        </button>
         <ComprehensiveHTMLExport tableRef={productGroupTableRef} />
         {dataGenerated && (
           <MultiChartHTMLExport />

@@ -30,7 +30,6 @@ const Dashboard = () => {
   const { loadSalesData, loading: salesLoading, error: salesError } = useSalesData();
   const { columnOrder, dataGenerated } = useFilter();
   const [selectedPeriods, setSelectedPeriods] = useState([]);
-  const [chartExportFunction, setChartExportFunction] = useState(null);
   const [logoSrc, setLogoSrc] = useState(interplastLogo);
   const productGroupTableRef = useRef(null);
 
@@ -85,11 +84,6 @@ const Dashboard = () => {
       setSelectedPeriods(periods);
     }
   }, [columnOrder]);
-
-  // Handle when chart export function is ready
-  const handleExportRefsReady = useCallback((exportData) => {
-    setChartExportFunction(() => exportData.exportFunction);
-  }, []);
   
   if (loading || salesLoading) {
     return <div className="loading">Loading Excel data...</div>;
@@ -119,7 +113,7 @@ const Dashboard = () => {
           <FilterPanel />
           
           {/* Add the column configuration grid here */}
-          <ColumnConfigGrid exportPdfFunction={chartExportFunction} productGroupTableRef={productGroupTableRef} />
+          <ColumnConfigGrid productGroupTableRef={productGroupTableRef} />
           
           <TabsComponent>
             <Tab label="KPI">
@@ -158,7 +152,6 @@ const Dashboard = () => {
                 <ChartView 
                   tableData={excelData}
                   selectedPeriods={selectedPeriods}
-                  onExportRefsReady={handleExportRefsReady}
                 />
               ) : (
                 <div className="empty-charts-container">

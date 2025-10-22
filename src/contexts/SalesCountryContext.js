@@ -223,7 +223,8 @@ export const SalesCountryProvider = ({ children }) => {
         fetchSalesForPeriods(periodsToFetch);
       }
     }
-  }, [columnOrder, countries, salesData, fetchSalesForPeriods]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columnOrder, countries, fetchSalesForPeriods]); // Removed salesData to prevent infinite loop
   
   const value = {
     // State

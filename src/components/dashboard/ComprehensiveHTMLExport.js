@@ -49,20 +49,20 @@ const ComprehensiveHTMLExport = ({ tableRef }) => {
   // Card configuration: KPI Summary first, then Charts, then Tables
   const cardConfigs = [
     // KPI Summary - First Row
-    { id: 'kpi-summary', title: 'KPI Summary', icon: '📈', description: 'Key performance indicators' },
+    { id: 'kpi-summary', title: 'KPI Summary', icon: '📈', description: 'Overview of key performance indicators including revenue, growth rates, and profitability metrics' },
     
     // Charts - Second Row
-    { id: 'sales-volume-analysis', title: 'Sales & Volume Analysis', icon: '📊', description: 'Sales and volume trends visualization' },
-    { id: 'margin-analysis', title: 'Margin Analysis', icon: '📋', description: 'Profit margin insights' },
-    { id: 'manufacturing-cost', title: 'Manufacturing Cost', icon: '🏭', description: 'Direct cost analysis' },
-    { id: 'below-gp-expenses', title: 'Below GP Expenses', icon: '📊', description: 'Operating expenses breakdown' },
-    { id: 'cost-profitability-trend', title: 'Cost & Profitability Trend', icon: '📈', description: 'Profitability trend analysis' },
+    { id: 'sales-volume-analysis', title: 'Sales & Volume Analysis', icon: '📊', description: 'Visual analysis of sales revenue and volume trends across different time periods' },
+    { id: 'margin-analysis', title: 'Margin Analysis', icon: '📋', description: 'Detailed breakdown of profit margins over material costs with trend analysis' },
+    { id: 'manufacturing-cost', title: 'Manufacturing Cost', icon: '🏭', description: 'Analysis of direct manufacturing costs including materials, labor, and production expenses' },
+    { id: 'below-gp-expenses', title: 'Below GP Expenses', icon: '📊', description: 'Operating expenses below gross profit including administrative and selling costs' },
+    { id: 'cost-profitability-trend', title: 'Cost & Profitability Trend', icon: '📈', description: 'Historical trends showing cost evolution and profitability patterns over time' },
     
     // Tables - Third Row (P&L Financial first)
-    { id: 'financial-pl', title: 'P&L Financial', icon: '💰', description: 'Profit & Loss statement' },
-    { id: 'product-group', title: 'Product Group', icon: '📊', description: 'Product group analysis and metrics' },
-    { id: 'sales-country', title: 'Sales by Country', icon: '🌍', description: 'Geographic sales distribution' },
-    { id: 'sales-customer', title: 'Sales by Customer', icon: '👥', description: 'Customer sales analysis' }
+    { id: 'financial-pl', title: 'P&L Financial', icon: '💰', description: 'Complete Profit & Loss statement with detailed financial performance breakdown' },
+    { id: 'product-group', title: 'Product Group', icon: '📊', description: 'Performance analysis by product categories including sales, margins, and growth metrics' },
+    { id: 'sales-country', title: 'Sales by Country', icon: '🌍', description: 'Geographic distribution of sales performance across different countries and regions' },
+    { id: 'sales-customer', title: 'Sales by Customer', icon: '👥', description: 'Top customer analysis showing sales performance and contribution by key accounts' }
   ];
 
   // Capture Product Group table HTML
@@ -2473,11 +2473,12 @@ const ComprehensiveHTMLExport = ({ tableRef }) => {
         /* Chart Container Styling */
         .chart-full-container {
             width: 100%;
-            height: 95vh;
+            height: auto;
+            min-height: 60vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 20px;
         }
         
         .chart-container {
@@ -3046,10 +3047,11 @@ const ComprehensiveHTMLExport = ({ tableRef }) => {
       }}
       disabled={isExporting || isLoading}
       className="export-btn html-export"
+      style={{ display: 'none' }}
     >
       {isExporting || isLoading ? 'Exporting...' : 'Generate Comprehensive HTML Report'}
       </button>
   );
 };
 
-export default ComprehensiveHTMLExport; 
+export default ComprehensiveHTMLExport;

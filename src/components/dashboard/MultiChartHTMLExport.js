@@ -1067,32 +1067,8 @@ const {
         }
     </script>
     <script>
-        // Font loading detection and fallback
-        function checkUaeSymbolFont() {
-            var testElement = document.createElement('span');
-            testElement.className = 'uae-symbol';
-            testElement.innerHTML = getUAEDirhamSymbolHTML();
-            testElement.style.visibility = 'hidden';
-            testElement.style.position = 'absolute';
-            testElement.style.fontSize = '16px';
-            document.body.appendChild(testElement);
-            
-            var computedStyle = window.getComputedStyle(testElement);
-            var fontFamily = computedStyle.fontFamily;
-            
-            var isCustomFontLoaded = fontFamily.includes('UAESymbol');
-            
-            document.body.removeChild(testElement);
-            
-            if (!isCustomFontLoaded) {
-                var uaeSymbols = document.querySelectorAll('.uae-symbol');
-                uaeSymbols.forEach(function(element) {
-                    element.classList.add('fallback');
-                    element.innerHTML = 'AED';
-                });
-                console.log('UAE symbol font not loaded, using AED fallback');
-            }
-        }
+        // Font detection removed - using SVG-based UAE symbols that render immediately
+        // No font loading detection needed since we use getUAEDirhamSymbolHTML() SVG approach
         
         // Fallback for ECharts loading
         window.addEventListener('load', function() {
@@ -1101,7 +1077,7 @@ const {
                 document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; color: #dc3545; font-size: 18px; text-align: center; padding: 20px;"><div>Chart library failed to load. Please check your internet connection and refresh the page.</div></div>';
             }
             
-            setTimeout(checkUaeSymbolFont, 2000);
+            // No font loading delay needed - SVG symbols render immediately
         });
     </script>
     <style>
@@ -1275,15 +1251,20 @@ const {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            height: calc(100vh - 80px);
+            height: auto;
+            min-height: calc(100vh - 80px);
             box-sizing: border-box;
         }
         
         .full-screen-chart-container {
             width: 100%;
-            height: calc(100vh - 140px);
+            height: auto;
+            min-height: 60vh;
             margin-bottom: 20px;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .uae-symbol {
@@ -2398,68 +2379,83 @@ const {
             <div class="chart-card" onclick="showChart('sales-volume')">
                 <span class="card-icon">📊</span>
                 <div class="card-title">Sales & Volume Analysis</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
+                    Visual analysis of sales revenue and volume trends across different time periods
+                </div>
             </div>
             
             <!-- Margin Analysis Card -->
             <div class="chart-card" onclick="showChart('margin-analysis')">
                 <span class="card-icon">📋</span>
                 <div class="card-title">Margin Analysis</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
+                    Detailed breakdown of profit margins over material costs with trend analysis
+                </div>
             </div>
             
             <!-- Manufacturing Cost Card -->
             <div class="chart-card" onclick="showChart('manufacturing-cost')">
                 <span class="card-icon">🏭</span>
                 <div class="card-title">Manufacturing Cost</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
+                    Analysis of direct manufacturing costs including materials, labor, and production expenses
+                </div>
             </div>
             
             <!-- Below GP Expenses Card -->
             <div class="chart-card" onclick="showChart('below-gp-expenses')">
                 <span class="card-icon">📊</span>
                 <div class="card-title">Below GP Expenses</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
+                    Operating expenses below gross profit including administrative and selling costs
+                </div>
             </div>
             
             <!-- Combined Trends Card -->
             <div class="chart-card" onclick="showChart('combined-trends')">
                 <span class="card-icon">📈</span>
                 <div class="card-title">Cost & Profitability Trend</div>
+                <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
+                    Historical trends showing cost evolution and profitability patterns over time
+                </div>
             </div>
         </div>
         
-        <!-- P&L Financial, Product Group, Sales by Customer, and Sales by Country Card Row -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 30px; justify-items: center;">
-            <div class="chart-card" onclick="showChart('pl-financial')" style="max-width: 300px; width: 100%;">
+        <!-- P&L Financial, Product Group, Sales by Sales Rep, Sales by Customer, and Sales by Country Card Row -->
+        <div class="charts-grid" style="margin-top: 30px; margin-bottom: 60px;">
+            <div class="chart-card" onclick="showChart('pl-financial')">
                 <span class="card-icon">💰</span>
                 <div class="card-title">P&L Financial</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
-                    Profit & Loss financial statement
+                    Complete Profit & Loss statement with detailed financial performance breakdown
                 </div>
             </div>
-            <div class="chart-card" onclick="showChart('product-group')" style="max-width: 300px; width: 100%;">
+            <div class="chart-card" onclick="showChart('product-group')">
                 <span class="card-icon">📊</span>
                 <div class="card-title">Product Group</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
-                    Product group analysis and metrics
+                    Performance analysis by product categories including sales, margins, and growth metrics
                 </div>
             </div>
-            <div class="chart-card" onclick="showChart('sales-rep')" style="max-width: 300px; width: 100%;">
+            <div class="chart-card" onclick="showChart('sales-rep')">
                 <span class="card-icon">🧑‍💼</span>
                 <div class="card-title">Sales by Sales Rep</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
-                    Sales rep performance and breakdown
+                    Sales representative performance analysis and individual contribution breakdown
                 </div>
             </div>
-            <div class="chart-card" onclick="showChart('sales-customer')" style="max-width: 300px; width: 100%;">
+            <div class="chart-card" onclick="showChart('sales-customer')">
                 <span class="card-icon">👥</span>
                 <div class="card-title">Sales by Customer</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
-                    Customer sales analysis and breakdown
+                    Top customer analysis showing sales performance and contribution by key accounts
                 </div>
             </div>
-            <div class="chart-card" onclick="showChart('sales-country')" style="max-width: 300px; width: 100%;">
+            <div class="chart-card" onclick="showChart('sales-country')">
                 <span class="card-icon">🌍</span>
                 <div class="card-title">Sales by Country</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
-                    Geographic sales distribution
+                    Geographic distribution of sales performance across different countries and regions
                 </div>
             </div>
         </div>
@@ -3750,11 +3746,11 @@ const {
                 totalsHTML += '<div class="below-gp-expenses-totals-card" style="background-color: ' + color + '; border: 1px solid ' + color + ';">';
                 totalsHTML += '<div style="font-size: 14px; color: ' + textColor + '; font-weight: 500; margin-top: 8px;">' + periodName + '</div>';
                 totalsHTML += '<div style="font-weight: bold; font-size: 22px; color: ' + textColor + '; margin-top: 8px;">';
-                totalsHTML += '<span class="uae-symbol">&#x00EA;</span> ' + formattedMillions + 'M';
+                totalsHTML += getUAEDirhamSymbolHTML() + ' ' + formattedMillions + 'M';
                 totalsHTML += '</div>';
                 totalsHTML += '<div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; padding: 0 8px; font-size: 12px; font-weight: bold; color: ' + textColor + '; margin-top: 8px;">';
                 totalsHTML += '<div>' + formattedPercent + '%/Sls</div>';
-                totalsHTML += '<div><span class="uae-symbol">&#x00EA;</span> ' + formattedPerKg + '/kg</div>';
+                totalsHTML += '<div>' + getUAEDirhamSymbolHTML() + ' ' + formattedPerKg + '/kg</div>';
                 totalsHTML += '</div>';
                 totalsHTML += '</div>';
                 

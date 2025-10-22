@@ -3,6 +3,8 @@ import * as echarts from 'echarts';
 import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
 import './BarChart.css';
 
+// Note: BarChart uses SVG UAEDirhamSymbol component, no font loading needed
+
 // Color scheme definitions (MUST MATCH ColumnConfigGrid.js exactly)
 const colorSchemes = [
   { name: 'blue', label: 'Blue', primary: '#288cfa', secondary: '#103766', isDark: true },
@@ -527,4 +529,4 @@ const BarChart = ({ data, periods, basePeriod }) => {
   );
 };
 
-export default BarChart; 
+export default BarChart;
