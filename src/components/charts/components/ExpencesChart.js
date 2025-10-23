@@ -1,4 +1,5 @@
 import React from 'react';
+import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
 
 // Color scheme definitions (MUST MATCH ColumnConfigGrid.js exactly)
 const colorSchemes = [
@@ -102,11 +103,12 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
       }}>
         Expenses Trend
       </h2>
+
       <div style={{
         display: 'flex',
         flexWrap: 'nowrap',
         justifyContent: 'space-around',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         gap: '5px',
         marginTop: 20,
         marginBottom: 0,
@@ -145,6 +147,7 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
             }}>
               <div style={{ fontSize: 14, color: card.textColor, fontWeight: 500, marginTop: 4 }}>{card.periodName}</div>
               <div style={{ fontWeight: 'bold', fontSize: 22, color: card.textColor, marginTop: 8 }}>
+                <UAEDirhamSymbol style={{ color: card.textColor, fontSize: 22 }} />
                 {card.value ? (card.value / 1000000).toFixed(2) + 'M' : '0.00M'}
               </div>
               <div style={{
@@ -157,11 +160,14 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
                 width: '100%'
               }}>
                 <div>{card.percentOfSales.toFixed(1)}%/Sls</div>
-                <div>{card.perKg.toFixed(1)} per kg</div>
+                <div>
+                  <UAEDirhamSymbol style={{ color: card.textColor, fontSize: 12 }} />
+                  {card.perKg.toFixed(1)}/kg
+                </div>
               </div>
             </div>
-            {/* Variance badge between cards */}
-            {idx < cards.length - 1 && (
+            {/* Variance badge between cards or spacer after last card */}
+            {idx < cards.length - 1 ? (
               <div style={{
                 alignSelf: 'center',
                 margin: '0 2px',
@@ -178,7 +184,7 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
                 ) : (
                   <>
                     <span style={{
-                      fontSize: 22,
+                      fontSize: 16,
                       fontWeight: 'bold',
                       color: variances[idx + 1] > 0 ? '#2E865F' : variances[idx + 1] < 0 ? '#cf1322' : '#888',
                       lineHeight: 1,
@@ -186,7 +192,7 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
                       {variances[idx + 1] > 0 ? '▲' : variances[idx + 1] < 0 ? '▼' : '–'}
                     </span>
                     <span style={{
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: 'bold',
                       color: variances[idx + 1] > 0 ? '#2E865F' : variances[idx + 1] < 0 ? '#cf1322' : '#888',
                       lineHeight: 1.1,
@@ -194,7 +200,7 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
                       {Math.abs(variances[idx + 1]).toFixed(1)}
                     </span>
                     <span style={{
-                      fontSize: 16,
+                      fontSize: 12,
                       fontWeight: 'bold',
                       color: variances[idx + 1] > 0 ? '#2E865F' : variances[idx + 1] < 0 ? '#cf1322' : '#888',
                       lineHeight: 1.1,
@@ -204,6 +210,9 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style }) 
                   </>
                 )}
               </div>
+            ) : (
+              // Add invisible spacer after last card to balance layout
+              <div style={{ flex: '0 0 40px' }}></div>
             )}
           </React.Fragment>
         ))}

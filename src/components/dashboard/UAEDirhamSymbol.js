@@ -1,11 +1,21 @@
 import React from 'react';
 
 const UAEDirhamSymbol = ({ className = '', style = {} }) => {
+  // Default styles that match export version for consistency
+  const defaultStyle = {
+    display: 'inline-block',
+    verticalAlign: '-0.1em',
+    width: '1em',
+    height: '1em',
+    marginRight: '0.2em',
+    ...style // Allow overrides
+  };
+
   return (
-    <svg 
+    <svg
       className={`uae-dirham-symbol ${className}`}
-      style={style}
-      viewBox="0 0 344.84 299.91" 
+      style={defaultStyle}
+      viewBox="0 0 344.84 299.91"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       aria-label="UAE Dirham Symbol"

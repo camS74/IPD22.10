@@ -13,7 +13,8 @@
       "Bash(python3:*)",
       "Bash(node replace_customer_key_facts.js:*)",
       "Bash(npx eslint:*)",
-      "Bash(timeout 10 npm run build:*)"
+      "Bash(timeout 10 npm run build:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

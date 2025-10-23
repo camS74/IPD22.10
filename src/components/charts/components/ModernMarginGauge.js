@@ -111,7 +111,23 @@ const SingleGauge = ({ value, absoluteValue, perKgValue, title, color, index }) 
           letterSpacing: 0.5
         }}
       >
-        <span>{title}</span>
+        <span>
+          {(() => {
+            const words = title.split(' ');
+            if (words.length > 1) {
+              const lastWord = words[words.length - 1];
+              const firstPart = words.slice(0, -1).join(' ');
+              return (
+                <React.Fragment>
+                  {firstPart}
+                  <br />
+                  {lastWord}
+                </React.Fragment>
+              );
+            }
+            return title;
+          })()}
+        </span>
       </div>
     </div>
   );
@@ -283,9 +299,9 @@ const ModernMarginGauge = ({ data, periods, basePeriod, style }) => {
         </span>
       </div>
       <div className="modern-gauge-container" style={{ 
-        display: 'flex', 
-        flexDirection: 'row', 
-        justifyContent: 'center', 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(5, 1fr)', 
+        justifyItems: 'center', 
         alignItems: 'flex-end', 
         gap: 15,
         width: '100%',
@@ -341,4 +357,4 @@ const ModernMarginGauge = ({ data, periods, basePeriod, style }) => {
   );
 };
 
-export default ModernMarginGauge; 
+export default ModernMarginGauge;

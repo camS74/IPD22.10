@@ -2551,7 +2551,7 @@ const {
                                 const periodKey = createPeriodKey(period);
                                 const value = sanitizeNumeric(chartData[periodKey]?.salesVolume || 0);
                                 const mtValue = Math.round(value / 1000);
-                                return `<div class="data-value purple">${mtValue.toLocaleString()} MT</div>`;
+                                return `<div class="data-value purple">${mtValue.toLocaleString()}</div>`;
                             }).join('')}
                         </div>
                     </div>
@@ -2653,6 +2653,16 @@ const {
         var charts = {};
 
          // Helper functions
+         function getUAEDirhamSymbolHTML() {
+             return '<svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"/></svg>';
+         }
+         // Convert UAE SVG to data URL for rich text image in ECharts labels
+         function getUAESymbolImageDataURL(color) {
+             color = color || '#222';
+             var svg = getUAEDirhamSymbolHTML().replace('currentColor', color);
+             return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+         }
+         
          function createPeriodKey(period) {
              if (period.isCustomRange) {
                  return period.year + '-' + period.month + '-' + period.type;
@@ -2790,6 +2800,9 @@ const {
                 renderSalesCustomer();
             } else if (chartType === 'sales-country') {
                 renderSalesCountry();
+            } else if (chartType === 'combined-trends') {
+                // Combined trends uses HTML cards, not ECharts - initialize the content
+                initializeCombinedTrends();
             } else {
                 // For all other charts, use the existing initialization
                 initializeFullScreenChart(chartType);
@@ -2956,15 +2969,34 @@ const {
                          fontWeight: 'bold',
                          fontSize: 18,
                          color: '#222',
-                         fontFamily: 'UAESymbol, sans-serif',
+                         rich: {
+                             uae: {
+                                 width: 16,
+                                 height: 16,
+                                 lineHeight: 18,
+                                 padding: [-2, 4, 0, 0],
+                                 align: 'center',
+                                 verticalAlign: 'top',
+                                 backgroundColor: {
+                                     image: getUAESymbolImageDataURL('#222')
+                                 }
+                             },
+                             num: {
+                                 fontSize: 18,
+                                 fontWeight: 'bold',
+                                 color: '#222',
+                                 verticalAlign: 'middle',
+                                 lineHeight: 18
+                             }
+                         },
                          formatter: function(params) {
                              const value = params.value;
-                             if (value >= 1000000) {
-                                 return String.fromCharCode(234) + ' ' + (value / 1000000).toFixed(1) + 'M';
-                             } else if (value >= 1000) {
-                                 return String.fromCharCode(234) + ' ' + (value / 1000).toFixed(1) + 'K';
-                             }
-                             return String.fromCharCode(234) + ' ' + value;
+                             const text = value >= 1000000
+                                 ? (value / 1000000).toFixed(1) + 'M'
+                                 : value >= 1000
+                                     ? (value / 1000).toFixed(1) + 'K'
+                                     : String(value);
+                             return '{uae|}{num|' + text + '}';
                          }
                      },
                     emphasis: {
@@ -3364,17 +3396,16 @@ const {
                          formatter: function(params) {
                              var data = ledgersList.find(function(l) { return l.label === params.name; })?.values[periodName];
                              if (!data) return '';
-                             
+
                              var millionsValue = (data.amount / 1000000).toFixed(2);
                              var percentValue = data.percentOfSales.toFixed(1);
                              var perKgValue = data.perKg.toFixed(1);
-                             
-                             return String.fromCharCode(234) + ' ' + millionsValue + 'M\\n\\n' + percentValue + '%/Sls\\n\\n' + String.fromCharCode(234) + ' ' + perKgValue + '/kg';
+
+                             return '{uae|} ' + millionsValue + 'M\\n\\n' + percentValue + '%/Sls\\n\\n{uae|} ' + perKgValue + '/kg';
                          },
                          fontSize: 10,
                          fontWeight: 'bold',
                          color: textColor,
-                         fontFamily: 'UAESymbol, sans-serif',
                          backgroundColor: 'transparent',
                          padding: [2, 4],
                          borderRadius: 0,
@@ -3382,7 +3413,20 @@ const {
                          shadowBlur: 0,
                          lineHeight: 12,
                          align: 'center',
-                         verticalAlign: 'middle'
+                         verticalAlign: 'middle',
+                         rich: {
+                             uae: {
+                                 width: 10,
+                                 height: 10,
+                                 lineHeight: 12,
+                                 padding: [-1, 2, 0, 0],
+                                 align: 'center',
+                                 verticalAlign: 'top',
+                                 backgroundColor: {
+                                     image: getUAESymbolImageDataURL(textColor)
+                                 }
+                             }
+                         }
                      },
                      emphasis: {
                          focus: 'series',
@@ -3953,7 +3997,7 @@ const {
                 };
                 
                 var textColor = isColorDark(color) ? '#fff' : '#333';
-                
+
                 return {
                     name: periodName,
                     type: 'bar',
@@ -3965,17 +4009,16 @@ const {
                         formatter: function(params) {
                             var data = ledgersList.find(function(l) { return l.label === params.name; })?.values[periodName];
                             if (!data) return '';
-                            
+
                             var millionsValue = (data.amount / 1000000).toFixed(2);
                             var percentValue = data.percentOfSales.toFixed(1);
                             var perKgValue = data.perKg.toFixed(1);
-                            
-                            return String.fromCharCode(234) + ' ' + millionsValue + 'M\\n\\n' + percentValue + '%/Sls\\n\\n' + String.fromCharCode(234) + ' ' + perKgValue + '/kg';
+
+                            return '{uae|} ' + millionsValue + 'M\\n\\n' + percentValue + '%/Sls\\n\\n{uae|} ' + perKgValue + '/kg';
                         },
                         fontSize: 10,
                         fontWeight: 'bold',
                         color: textColor,
-                        fontFamily: 'UAESymbol, sans-serif',
                         backgroundColor: 'transparent',
                         padding: [2, 4],
                         borderRadius: 0,
@@ -3983,7 +4026,20 @@ const {
                         shadowBlur: 0,
                         lineHeight: 12,
                         align: 'center',
-                        verticalAlign: 'middle'
+                        verticalAlign: 'middle',
+                        rich: {
+                            uae: {
+                                width: 10,
+                                height: 10,
+                                lineHeight: 12,
+                                padding: [-1, 2, 0, 0],
+                                align: 'center',
+                                verticalAlign: 'top',
+                                backgroundColor: {
+                                    image: getUAESymbolImageDataURL(textColor)
+                                }
+                            }
+                        }
                     },
                     emphasis: {
                         focus: 'series',
@@ -4345,10 +4401,22 @@ const {
             
             // Render Combined Trends in ONE container - EXACT same as original charts
             var combinedHTML = '<div style="margin-top: 30px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 20px 20px 20px 20px; width: 95%; margin-left: auto; margin-right: auto; box-sizing: border-box; min-height: 800px; overflow: visible;">';
-            
+
+            // Add Period Legend at the top
+            combinedHTML += '<div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">';
+            periodsToUse.forEach(function(period, idx) {
+                var periodName = period.year + ' ' + (period.isCustomRange ? period.displayName : (period.month || '')) + ' ' + period.type;
+                var color = getPeriodColor(period, idx);
+                combinedHTML += '<div style="display: flex; align-items: center; gap: 8px;">';
+                combinedHTML += '<div style="width: 20px; height: 20px; background-color: ' + color + '; border-radius: 4px;"></div>';
+                combinedHTML += '<span style="font-size: 14px; font-weight: 500; color: #333;">' + periodName + '</span>';
+                combinedHTML += '</div>';
+            });
+            combinedHTML += '</div>';
+
             // Expenses Trend Section
             combinedHTML += '<h2 style="text-align: center; font-size: 18px; margin-bottom: 20px; color: #333; font-weight: 600;">Expenses Trend</h2>';
-            combinedHTML += '<div style="display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: flex-end; gap: 5px; margin-top: 20px; margin-bottom: 0; width: 100%; padding: 0 24px;">';
+            combinedHTML += '<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 5px; margin-top: 20px; margin-bottom: 0; width: 100%; padding: 0 24px;">';
             
             // Build expenses cards - EXACT same as ExpencesChart
             var expensesCards = periodsToUse.map(function(period, idx) {
@@ -4377,15 +4445,15 @@ const {
             // Render expenses cards with variances
             expensesCards.forEach(function(card, idx) {
                 // Card with hover effects
-                combinedHTML += '<div class="hover-card" style="padding: 12px 15px; border-radius: 6px; background-color: ' + card.color + '; border: 1px solid ' + card.color + '; box-shadow: 0 2px 6px rgba(0,0,0,0.07); min-width: 150px; max-width: 180px; flex: 1; text-align: center; position: relative; overflow: hidden; color: ' + card.textColor + '; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;">';
+                combinedHTML += '<div class="hover-card" style="padding: 12px 15px; border-radius: 6px; background-color: ' + card.color + '; border: 1px solid ' + card.color + '; box-shadow: 0 2px 6px rgba(0,0,0,0.07); flex: 1 1 0; min-width: 0; text-align: center; position: relative; overflow: hidden; color: ' + card.textColor + '; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;">';
                 combinedHTML += '<div style="font-size: 14px; color: ' + card.textColor + '; font-weight: 500; margin-top: 4px;">' + card.periodName + '</div>';
                 combinedHTML += '<div style="font-weight: bold; font-size: 22px; color: ' + card.textColor + '; margin-top: 8px;">${getUAEDirhamSymbolHTML()} ' + (card.value ? (card.value / 1000000).toFixed(2) + 'M' : '0.00M') + '</div>';
                 combinedHTML += '<div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: ' + card.textColor + '; margin-top: 8px; width: 100%;">';
                 combinedHTML += '<div>' + card.percentOfSales.toFixed(1) + '%/Sls</div>';
                 combinedHTML += '<div>' + card.perKg.toFixed(1) + ' per kg</div>';
                 combinedHTML += '</div></div>';
-                
-                // Variance badge between cards
+
+                // Variance badge between cards OR invisible spacer after last card
                 if (idx < expensesCards.length - 1) {
                     var variance = expensesVariances[idx + 1];
                     var badgeColor = '#888', arrow = '–';
@@ -4393,16 +4461,19 @@ const {
                         if (variance > 0) { badgeColor = '#2E865F'; arrow = '▲'; }
                         else if (variance < 0) { badgeColor = '#cf1322'; arrow = '▼'; }
                     }
-                    
-                    combinedHTML += '<div style="align-self: center; margin: 0 2px; display: flex; flex-direction: column; align-items: center; min-width: 40px; width: 40px; height: 60px; justify-content: center;">';
+
+                    combinedHTML += '<div style="flex: 0 0 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;">';
                     if (variance === null || isNaN(variance)) {
-                        combinedHTML += '<span style="color: #888; font-size: 16px; font-weight: bold; text-align: center;">N/A</span>';
+                        combinedHTML += '<span style="color: #888; font-size: 12px; font-weight: bold; text-align: center;">N/A</span>';
                     } else {
-                        combinedHTML += '<span style="font-size: 22px; font-weight: bold; color: ' + badgeColor + '; line-height: 1;">' + arrow + '</span>';
-                        combinedHTML += '<span style="font-size: 18px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">' + Math.abs(variance).toFixed(1) + '</span>';
-                        combinedHTML += '<span style="font-size: 16px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">%</span>';
+                        combinedHTML += '<span style="font-size: 16px; font-weight: bold; color: ' + badgeColor + '; line-height: 1;">' + arrow + '</span>';
+                        combinedHTML += '<span style="font-size: 14px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">' + Math.abs(variance).toFixed(1) + '</span>';
+                        combinedHTML += '<span style="font-size: 12px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">%</span>';
                     }
                     combinedHTML += '</div>';
+                } else {
+                    // Add invisible spacer after last card to balance layout
+                    combinedHTML += '<div style="flex: 0 0 40px;"></div>';
                 }
             });
             
@@ -4452,19 +4523,19 @@ const {
                 // Render HTML for this KPI in same container
                 combinedHTML += '<div style="margin-bottom: ' + (rowIdx < PROFIT_KPIS.length - 1 ? '30px' : '0') + '; padding-bottom: 0; overflow: hidden;">';
                 combinedHTML += '<h2 style="text-align: center; font-size: 18px; margin-bottom: 20px; color: #333; font-weight: 600;">' + kpi.label + ' Trend</h2>';
-                combinedHTML += '<div style="display: flex; flex-wrap: nowrap; justify-content: space-around; align-items: flex-end; gap: 5px; margin-top: 10px; margin-bottom: 0; padding-bottom: 0; width: 100%; padding: 0 24px;">';
+                combinedHTML += '<div style="display: flex; flex-wrap: nowrap; align-items: center; gap: 5px; margin-top: 10px; margin-bottom: 0; padding-bottom: 0; width: 100%; padding: 0 24px;">';
                 
                 profitCards.forEach(function(card, idx) {
                     // Card with hover effects
-                    combinedHTML += '<div class="hover-card" style="padding: 12px 15px; border-radius: 6px; background-color: ' + card.color + '; border: 1px solid ' + card.color + '; box-shadow: 0 2px 6px rgba(0,0,0,0.07); min-width: 150px; max-width: 180px; flex: 1; text-align: center; position: relative; overflow: hidden; color: ' + card.textColor + '; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;">';
+                    combinedHTML += '<div class="hover-card" style="padding: 12px 15px; border-radius: 6px; background-color: ' + card.color + '; border: 1px solid ' + card.color + '; box-shadow: 0 2px 6px rgba(0,0,0,0.07); flex: 1 1 0; min-width: 0; text-align: center; position: relative; overflow: hidden; color: ' + card.textColor + '; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;">';
                     combinedHTML += '<div style="font-size: 14px; color: ' + card.textColor + '; font-weight: 500; margin-top: 4px;">' + card.periodName + '</div>';
                     combinedHTML += '<div style="font-weight: bold; font-size: 22px; color: ' + card.textColor + '; margin-top: 8px;">${getUAEDirhamSymbolHTML()} ' + (card.value ? (card.value / 1000000).toFixed(2) + 'M' : '0.00M') + '</div>';
                     combinedHTML += '<div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: ' + card.textColor + '; margin-top: 8px; width: 100%;">';
                     combinedHTML += '<div>' + card.percentOfSales.toFixed(1) + '%/Sls</div>';
                     combinedHTML += '<div>' + card.perKg.toFixed(1) + ' per kg</div>';
                     combinedHTML += '</div></div>';
-                    
-                    // Variance badge between cards
+
+                    // Variance badge between cards OR invisible spacer after last card
                     if (idx < profitCards.length - 1) {
                         var variance = profitVariances[idx + 1];
                         var badgeColor = '#888', arrow = '–';
@@ -4472,16 +4543,19 @@ const {
                             if (variance > 0) { badgeColor = '#2E865F'; arrow = '▲'; }
                             else if (variance < 0) { badgeColor = '#cf1322'; arrow = '▼'; }
                         }
-                        
-                        combinedHTML += '<div style="align-self: center; margin: 0 2px; display: flex; flex-direction: column; align-items: center; min-width: 40px; width: 40px; height: 60px; justify-content: center;">';
+
+                        combinedHTML += '<div style="flex: 0 0 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;">';
                         if (variance === null || isNaN(variance)) {
-                            combinedHTML += '<span style="color: #888; font-size: 16px; font-weight: bold; text-align: center;"></span>';
+                            combinedHTML += '<span style="color: #888; font-size: 12px; font-weight: bold; text-align: center;"></span>';
                         } else {
-                            combinedHTML += '<span style="font-size: 22px; font-weight: bold; color: ' + badgeColor + '; line-height: 1;">' + arrow + '</span>';
-                            combinedHTML += '<span style="font-size: 18px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">' + Math.abs(variance).toFixed(1) + '</span>';
-                            combinedHTML += '<span style="font-size: 16px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">%</span>';
+                            combinedHTML += '<span style="font-size: 16px; font-weight: bold; color: ' + badgeColor + '; line-height: 1;">' + arrow + '</span>';
+                            combinedHTML += '<span style="font-size: 14px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">' + Math.abs(variance).toFixed(1) + '</span>';
+                            combinedHTML += '<span style="font-size: 12px; font-weight: bold; color: ' + badgeColor + '; line-height: 1.1;">%</span>';
                         }
                         combinedHTML += '</div>';
+                    } else {
+                        // Add invisible spacer after last card to balance layout
+                        combinedHTML += '<div style="flex: 0 0 40px;"></div>';
                     }
                 });
                 
