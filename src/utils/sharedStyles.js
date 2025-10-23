@@ -37,7 +37,7 @@ export const KPI_CSS_CONTENT = `
 .full-screen-header {
   position: sticky;
   top: 0;
-  background: #667eea; /* restored blue header */
+  background: #033082; /* logo blue header */
   color: white; /* ensure text is white on blue */
   z-index: 1001;
   padding: 20px;
@@ -1056,36 +1056,38 @@ export const KPI_CSS_CONTENT = `
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Consistent header row heights - EXACT same as ComprehensiveHTMLExport */
+/* Consistent header row heights - OPTIMIZED and compact */
 .pl-financial-table thead tr th {
-  height: 35px;
-  line-height: 1.2;
+  height: 18px;
+  line-height: 1;
   vertical-align: middle;
   font-weight: bold;
   position: sticky;
   z-index: 10;
   white-space: nowrap !important;
+  padding: 2px 4px;
+  font-size: 10px;
 }
 
-/* Default: Freeze first 3 header rows */
+/* Default: Freeze first 3 header rows - starts at 0px (no dead space) */
 .pl-financial-table thead tr:nth-child(1) th {
-  top: 70px; /* Account for sticky back button container height */
+  top: 0px; /* Start immediately after blue header */
   z-index: 13;
 }
 
 .pl-financial-table thead tr:nth-child(2) th {
-  top: 105px; /* 70px sticky back + 35px first row */
+  top: 18px; /* 18px first row */
   z-index: 12;
 }
 
 .pl-financial-table thead tr:nth-child(3) th {
-  top: 140px; /* 70px sticky back + 70px first two rows */
+  top: 36px; /* 36px first two rows */
   z-index: 11;
 }
 
 /* P&L Financial Table: Freeze first 4 header rows */
 .pl-financial-table thead tr:nth-child(4) th {
-  top: 175px; /* 70px sticky back + 105px first three rows */
+  top: 54px; /* 54px first three rows */
   z-index: 10;
   position: sticky;
   font-weight: bold;

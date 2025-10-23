@@ -29,24 +29,38 @@ const {
   // Capture Product Group table HTML (same as Comprehensive HTML Export)
   const captureProductGroupTable = async () => {
     console.log('🔍 Capturing Product Group table...');
-    
+
     // Wait a bit more for table to fully render
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
+    // Helper function to process and return table HTML
+    const processTable = (table) => {
+      const clonedTable = table.cloneNode(true);
+      // Replace "Product Group" with "Product Groups" in all cells AND add class for styling
+      const allCells = clonedTable.querySelectorAll('td, th');
+      allCells.forEach(cell => {
+        if (cell.textContent && cell.textContent.trim() === 'Product Group') {
+          cell.textContent = 'Product Groups';
+          cell.classList.add('table-main-label'); // Add class for font size styling
+        }
+      });
+      return clonedTable.outerHTML;
+    };
+
     // APPROACH 1: Look for Product Group table by class
     const productGroupTable = document.querySelector('table.product-group-table');
-    
+
     if (productGroupTable) {
       console.log('✅ Found Product Group table by class');
-      return productGroupTable.outerHTML;
+      return processTable(productGroupTable);
     }
-    
+
     // APPROACH 2: Look for table with product-header-row (unique to Product Group)
     const tableWithProductHeaders = document.querySelector('table .product-header-row')?.closest('table');
-    
+
     if (tableWithProductHeaders) {
       console.log('✅ Found Product Group table by product-header-row');
-      return tableWithProductHeaders.outerHTML;
+      return processTable(tableWithProductHeaders);
     }
     
     // APPROACH 3: Look for table containing product group specific text
@@ -76,7 +90,7 @@ const {
     
     if (productGroupTableByContent) {
       console.log('✅ Found Product Group table by content analysis');
-      return productGroupTableByContent.outerHTML;
+      return processTable(productGroupTableByContent);
     }
     
     console.error('❌ No Product Group table found after enhanced search');
@@ -103,7 +117,7 @@ const {
     
     if (fallbackTable) {
       console.log('🎯 Using fallback table that seems to be Product Group table');
-      return fallbackTable.outerHTML;
+      return processTable(fallbackTable);
     }
     
     throw new Error('Product Group table not found. Please visit the Product Group tab first.');
@@ -204,6 +218,20 @@ const {
         }
       });
       
+      // Remove empty rows from thead (the 2 unwanted rows above headers)
+      const theadRows = clonedTable.querySelectorAll('thead tr');
+      theadRows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const hasContent = Array.from(cells).some(cell => {
+          const text = cell.textContent?.trim();
+          return text && text.length > 0 && text !== ' ' && text !== '\u00A0';
+        });
+        // Remove row if it's completely empty or has only whitespace
+        if (!hasContent) {
+          row.remove();
+        }
+      });
+
       // Fix the header structure - ensure headers are on single lines (no breaks)
       const headerCells = clonedTable.querySelectorAll('thead tr th');
       headerCells.forEach(th => {
@@ -332,29 +360,42 @@ const {
       return hasCustomerData && isInTableView;
     });
     
+    // Helper function to process Customer table - replace singular with plural
+    const processCustomerTable = (table) => {
+      const clonedTable = table.cloneNode(true);
+      const allCells = clonedTable.querySelectorAll('td, th');
+      allCells.forEach(cell => {
+        const text = cell.textContent?.trim();
+        if (text === 'Customer' || text === 'Sales Rep') {
+          cell.textContent = text === 'Customer' ? 'Customers' : 'Sales Reps';
+        }
+      });
+      return clonedTable.outerHTML;
+    };
+
     if (customerTable) {
       console.log('✅ Found Sales by Customer table');
-      
+
       // Store the hideSalesRep setting for later use in rendering
       window.salesCustomerHideSalesRep = hideSalesRep;
-      
-      return customerTable.outerHTML;
+
+      return processCustomerTable(customerTable);
     }
-    
+
     // Fallback: look for any table that might be the sales customer table
     const fallbackTable = allTables.find(table => {
       const tableView = table.closest('.table-view');
       const hasSalesData = table.textContent?.includes('Sales') || table.textContent?.includes('Amount');
       return tableView && hasSalesData && table.querySelector('thead') && table.querySelector('tbody');
     });
-    
+
     if (fallbackTable) {
       console.log('🎯 Using fallback table for Sales by Customer');
-      
+
       // Store the hideSalesRep setting for later use in rendering
       window.salesCustomerHideSalesRep = hideSalesRep;
-      
-      return fallbackTable.outerHTML;
+
+      return processCustomerTable(fallbackTable);
     }
     
     throw new Error('Sales by Customer table not found. Please visit the Sales by Customer tab first.');
@@ -409,21 +450,34 @@ const {
       return hasCountryData && isInTableView;
     });
     
+    // Helper function to process Country table - replace singular with plural
+    const processCountryTable = (table) => {
+      const clonedTable = table.cloneNode(true);
+      const allCells = clonedTable.querySelectorAll('td, th');
+      allCells.forEach(cell => {
+        const text = cell.textContent?.trim();
+        if (text === 'Country') {
+          cell.textContent = 'Countries';
+        }
+      });
+      return clonedTable.outerHTML;
+    };
+
     if (countryTable) {
       console.log('✅ Found Sales by Country table');
-      return countryTable.outerHTML;
+      return processCountryTable(countryTable);
     }
-    
+
     // Fallback: look for any table that might be the sales country table
     const fallbackTable = allTables.find(table => {
       const tableView = table.closest('.table-view');
       const hasCountryData = table.textContent?.includes('Country') || table.textContent?.includes('Europe');
       return tableView && hasCountryData && table.querySelector('thead') && table.querySelector('tbody');
     });
-    
+
     if (fallbackTable) {
       console.log('🎯 Using fallback table for Sales by Country');
-      return fallbackTable.outerHTML;
+      return processCountryTable(fallbackTable);
     }
     
     throw new Error('Sales by Country table not found. Please visit the Sales by Country tab first.');
@@ -1204,7 +1258,7 @@ const {
         }
         
         .full-screen-header {
-            background: #667eea;
+            background: #033082;
             color: white;
             padding: 20px;
             display: flex;
@@ -1244,7 +1298,7 @@ const {
         
         .back-to-cards-btn:hover {
             background: white;
-            color: #667eea;
+            color: #033082;
         }
         
         .full-screen-content {
@@ -1650,38 +1704,38 @@ const {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        /* Consistent header row heights - EXACT same as ComprehensiveHTMLExport */
+        /* Consistent header row heights - OPTIMIZED and compact */
         .pl-financial-table thead tr th {
-            height: 24px;
-            line-height: 1.1;
+            height: 18px;
+            line-height: 1;
             vertical-align: middle;
             font-weight: bold;
             position: sticky;
             z-index: 10;
             white-space: nowrap !important;
-            padding: 3px 6px;
-            font-size: 11px;
+            padding: 2px 4px;
+            font-size: 10px;
         }
-        
+
         /* Default: Freeze first 3 header rows - OPTIMIZED for no dead space */
         .pl-financial-table thead tr:nth-child(1) th {
             top: 0px; /* Start immediately after blue header */
             z-index: 13;
         }
-        
+
         .pl-financial-table thead tr:nth-child(2) th {
-            top: 24px; /* 24px first row */
+            top: 18px; /* 18px first row */
             z-index: 12;
         }
-        
+
         .pl-financial-table thead tr:nth-child(3) th {
-            top: 48px; /* 48px first two rows */
+            top: 36px; /* 36px first two rows */
             z-index: 11;
         }
-        
+
         /* P&L Financial Table: Freeze first 4 header rows */
         .pl-financial-table thead tr:nth-child(4) th {
-            top: 72px; /* 72px first three rows */
+            top: 54px; /* 54px first three rows */
             z-index: 10;
             position: sticky;
             font-weight: bold;
@@ -1920,6 +1974,11 @@ const {
             background-color: #1565c0;
             color: white;
             font-weight: bold;
+        }
+
+        /* Double font size ONLY for cells with class "table-main-label" (Product Groups, Customers, etc.) */
+        .table-main-label {
+            font-size: 28px !important;
         }
         
         /* Category header rows */
@@ -2174,8 +2233,18 @@ const {
             border-bottom: 4px solid #333 !important;
         }
 
+        /* Double font size ONLY for the very first cell containing "Customers"/"Sales Reps" text */
+        .sales-by-customer-table tbody tr:first-child td:first-child {
+            font-size: 28px !important;
+        }
+
         /* Sales by Country Table - EXACT same approach as Sales by Customer */
-        
+
+        /* Double font size ONLY for the very first cell containing "Countries" text */
+        .sales-by-country-table tbody tr:first-child td:first-child {
+            font-size: 28px !important;
+        }
+
         /* Table Container */
         .sales-country-table-container {
             width: 100%;
@@ -2425,35 +2494,35 @@ const {
         <div class="charts-grid" style="margin-top: 30px; margin-bottom: 60px;">
             <div class="chart-card" onclick="showChart('pl-financial')">
                 <span class="card-icon">💰</span>
-                <div class="card-title">P&L Financial</div>
+                <div class="card-title">Profit and Loss Statement</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
                     Complete Profit & Loss statement with detailed financial performance breakdown
                 </div>
             </div>
             <div class="chart-card" onclick="showChart('product-group')">
                 <span class="card-icon">📊</span>
-                <div class="card-title">Product Group</div>
+                <div class="card-title">Product Groups</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
                     Performance analysis by product categories including sales, margins, and growth metrics
                 </div>
             </div>
             <div class="chart-card" onclick="showChart('sales-rep')">
                 <span class="card-icon">🧑‍💼</span>
-                <div class="card-title">Sales by Sales Rep</div>
+                <div class="card-title">Sales by Sales Reps</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
                     Sales representative performance analysis and individual contribution breakdown
                 </div>
             </div>
             <div class="chart-card" onclick="showChart('sales-customer')">
                 <span class="card-icon">👥</span>
-                <div class="card-title">Sales by Customer</div>
+                <div class="card-title">Sales by Customers</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
                     Top customer analysis showing sales performance and contribution by key accounts
                 </div>
             </div>
             <div class="chart-card" onclick="showChart('sales-country')">
                 <span class="card-icon">🌍</span>
-                <div class="card-title">Sales by Country</div>
+                <div class="card-title">Sales by Countries</div>
                 <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 8px; line-height: 1.4;">
                     Geographic distribution of sales performance across different countries and regions
                 </div>
@@ -2473,10 +2542,10 @@ const {
         </div>
     </div>
     
-    <!-- P&L Financial Chart -->
+    <!-- Profit and Loss Statement Chart -->
     <div class="full-screen-chart" id="full-screen-pl-financial">
         <div class="full-screen-header">
-            <h1 class="full-screen-title">P&L Financial</h1>
+            <h1 class="full-screen-title">Profit and Loss Statement</h1>
             <div class="currency-badge">${getUAEDirhamSymbolHTML()}</div>
             <button class="back-to-cards-btn" onclick="hideAllCharts()">← Back to Dashboard</button>
         </div>
@@ -2485,51 +2554,51 @@ const {
         </div>
     </div>
     
-        <!-- Product Group Chart -->
+        <!-- Product Groups Chart -->
         <div class="full-screen-chart" id="full-screen-product-group">
             <div class="full-screen-header">
-                <h1 class="full-screen-title">Product Group</h1>
+                <h1 class="full-screen-title">Product Groups</h1>
                 <div class="currency-badge">${getUAEDirhamSymbolHTML()}</div>
                 <button class="back-to-cards-btn" onclick="hideAllCharts()">← Back to Dashboard</button>
             </div>
             <div class="full-screen-content" id="full-product-group-chart">
-                <!-- Product Group table will be rendered here -->
+                <!-- Product Groups table will be rendered here -->
             </div>
         </div>
 
-        <!-- Sales by Customer Chart -->
+        <!-- Sales by Customers Chart -->
         <div class="full-screen-chart" id="full-screen-sales-customer">
             <div class="full-screen-header">
-                <h1 class="full-screen-title" id="sales-customer-header-title">Sales by Customer</h1>
+                <h1 class="full-screen-title" id="sales-customer-header-title">Sales by Customers</h1>
                 <div class="currency-badge">${getUAEDirhamSymbolHTML()}</div>
                 <button class="back-to-cards-btn" onclick="hideAllCharts()">← Back to Dashboard</button>
             </div>
             <div class="full-screen-content" id="full-sales-customer-chart">
-                <!-- Sales by Customer table will be rendered here -->
+                <!-- Sales by Customers table will be rendered here -->
             </div>
         </div>
-        
-        <!-- Sales by Sales Rep Chart -->
+
+        <!-- Sales by Sales Reps Chart -->
         <div class="full-screen-chart" id="full-screen-sales-rep">
             <div class="full-screen-header">
-                <h1 class="full-screen-title" id="sales-rep-header-title">Sales by Sales Rep</h1>
+                <h1 class="full-screen-title" id="sales-rep-header-title">Sales by Sales Reps</h1>
                 <div class="currency-badge">${getUAEDirhamSymbolHTML()}</div>
                 <button class="back-to-cards-btn" onclick="hideAllCharts()">← Back to Dashboard</button>
             </div>
             <div class="full-screen-content" id="full-sales-rep-chart">
-                <!-- Sales by Sales Rep table will be rendered here -->
+                <!-- Sales by Sales Reps table will be rendered here -->
             </div>
         </div>
-    
-    <!-- Sales by Country Chart -->
+
+    <!-- Sales by Countries Chart -->
         <div class="full-screen-chart" id="full-screen-sales-country">
             <div class="full-screen-header">
-                <h1 class="full-screen-title" id="sales-country-header-title">Sales by Country</h1>
+                <h1 class="full-screen-title" id="sales-country-header-title">Sales by Countries</h1>
                 <div class="currency-badge">${getUAEDirhamSymbolHTML()}</div>
                 <button class="back-to-cards-btn" onclick="hideAllCharts()">← Back to Dashboard</button>
             </div>
             <div class="full-screen-content" id="full-sales-country-chart">
-                <!-- Sales by Country table will be rendered here -->
+                <!-- Sales by Countries table will be rendered here -->
             </div>
         </div>
     
@@ -3181,7 +3250,15 @@ const {
                         '</div>' +
                     '</div>' +
                     '<div class="gauge-title" style="background-color: ' + gauge.color + '; color: ' + (gauge.color.toLowerCase() === '#ffd700' ? '#333' : '#fff') + '; border-top: 1px solid ' + gauge.color + '; font-size: 20px; font-weight: bold; letter-spacing: 0.5px; padding: 12px 16px; text-align: center;">' +
-                        '<span>' + gauge.title + '</span>' +
+                        '<span>' + (function() {
+                            var words = gauge.title.split(' ');
+                            if (words.length > 1) {
+                                var lastWord = words[words.length - 1];
+                                var firstPart = words.slice(0, -1).join(' ');
+                                return firstPart + '<br />' + lastWord;
+                            }
+                            return gauge.title;
+                        })() + '</span>' +
                     '</div>' +
                 '</div>';
                 

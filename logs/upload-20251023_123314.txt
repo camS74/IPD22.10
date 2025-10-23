@@ -1,0 +1,40 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20251023123314
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: powershell -ExecutionPolicy Bypass -File upload-to-github.ps1 -RepoUrl https://github.com/camS74/IPD22.10.git
+Process ID: 12144
+PSVersion: 5.1.26100.6899
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6899
+BuildVersion: 10.0.26100.6899
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\Projects\IPD22.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of '.claude/settings.local.json', LF will be replaced by CRLF the next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 41, done.
+Counting objects: 100% (41/41), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (20/20), done.
+Writing objects: 100% (21/21), 7.80 KiB | 665.00 KiB/s, done.
+Total 21 (delta 17), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (17/17), completed with 17 local objects.
+To https://github.com/camS74/IPD22.10.git
+   e50c9ac..3162fa1  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251023123320
+**********************

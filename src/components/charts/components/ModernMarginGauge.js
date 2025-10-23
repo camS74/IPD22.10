@@ -298,11 +298,11 @@ const ModernMarginGauge = ({ data, periods, basePeriod, style }) => {
           % variance based on sequential period comparison (current vs previous period)
         </span>
       </div>
-      <div className="modern-gauge-container" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(5, 1fr)', 
-        justifyItems: 'center', 
-        alignItems: 'flex-end', 
+      <div className="modern-gauge-container" style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
         gap: 15,
         width: '100%',
         margin: '0 auto',
