@@ -1285,6 +1285,38 @@ const {
             margin: 0;
         }
         
+        /* Sales Reps table header font size */
+        .sales-rep-table-container th.empty-header {
+            font-size: 28px !important;
+        }
+        
+        /* Center all figures in Sales Reps table */
+        .sales-rep-table-container .metric-cell {
+            text-align: center !important;
+        }
+        
+        /* Add borders to Sales Reps table */
+        .sales-rep-table-container table {
+            border-collapse: collapse !important;
+            border: 1px solid #ddd !important;
+        }
+        
+        .sales-rep-table-container th,
+        .sales-rep-table-container td {
+            border: 1px solid #ddd !important;
+            padding: 8px !important;
+        }
+        
+        /* Make sales rep names bold */
+        .sales-rep-table-container .customer-name-cell {
+            font-weight: bold !important;
+        }
+        
+        /* Hide the first row (year row) in Sales Reps table */
+        .sales-rep-table-container thead tr:first-child {
+            display: none !important;
+        }
+        
         .back-to-cards-btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
@@ -1981,6 +2013,11 @@ const {
             font-size: 28px !important;
         }
         
+        /* Product Groups Names header font size */
+        .product-group-table th.empty-header {
+            font-size: 28px !important;
+        }
+        
         /* Category header rows */
         .category-header-row td:first-child {
             background-color: #37474f;
@@ -2581,7 +2618,7 @@ const {
         <!-- Sales by Sales Reps Chart -->
         <div class="full-screen-chart" id="full-screen-sales-rep">
             <div class="full-screen-header">
-                <h1 class="full-screen-title" id="sales-rep-header-title">Sales by Sales Reps</h1>
+                <h1 class="full-screen-title" id="sales-rep-header-title">Sales by Sales Reps Names</h1>
                 <div class="currency-badge">${getUAEDirhamSymbolHTML()}</div>
                 <button class="back-to-cards-btn" onclick="hideAllCharts()">← Back to Dashboard</button>
             </div>
@@ -4364,7 +4401,7 @@ const {
             
             var headerTitleElement = document.getElementById('sales-rep-header-title');
             if (headerTitleElement) {
-                headerTitleElement.textContent = 'Sales by Sales Rep';
+                headerTitleElement.textContent = 'Sales by Sales Reps Names';
             }
             
             var salesRepHTML = '<div class="sales-rep-table-container">' +

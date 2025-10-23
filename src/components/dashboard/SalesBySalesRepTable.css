@@ -44,6 +44,11 @@
   font-size: 14px; /* Base font size for headers */
 }
 
+/* Sales Reps header font size */
+.financial-table th.empty-header {
+  font-size: 28px !important;
+}
+
 .financial-table td {
   padding: 8px;
   text-align: center;
@@ -79,7 +84,7 @@
 
 /* Metric cell styles */
 .metric-cell {
-  text-align: right;
+  text-align: center;
 }
 
 /* Delta column styles - always white background */

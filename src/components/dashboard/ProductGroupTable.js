@@ -457,7 +457,7 @@ const ProductGroupTable = React.forwardRef((props, ref) => {
           <table className="product-group-table">
             <thead>
               <tr className="main-header-row">
-                <th className="empty-header" rowSpan="3" style={{ width: '26%' }}>Product Group</th>
+                <th className="empty-header" rowSpan="3" style={{ width: '26%' }}>Product Groups Names</th>
                 {extendedColumns.map((col, index) => (
                   col.columnType === 'delta' ? (
                     <th key={`delta-year-${index}`} rowSpan="3" style={{ backgroundColor: '#f8f9fa', color: '#000', fontWeight: 'bold' }}>Δ</th>

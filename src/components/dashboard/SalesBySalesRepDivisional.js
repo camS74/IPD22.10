@@ -3,7 +3,7 @@ import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
 import SalesRepHTMLExport from './SalesRepHTMLExport';
 import UAEDirhamSymbol from './UAEDirhamSymbol';
-import './SalesByCustomerTableNew.css'; // Reuse the same CSS
+import './SalesBySalesRepTable.css'; // Use the correct CSS file
 
 /**
  * Sales by Sales Rep Divisional - Duplicated from Sales by Customer
@@ -483,7 +483,7 @@ const SalesBySalesRepDivisional = () => {
     return (
       <div className="table-view">
         <div className="table-title">
-          <h2>Sales by Sales Rep - {selectedDivision}</h2>
+          <h2>Sales by Sales Reps - {selectedDivision}</h2>
         </div>
         <div className="table-empty-state">
           <div className="loading-spinner"></div>
@@ -500,7 +500,7 @@ const SalesBySalesRepDivisional = () => {
     return (
       <div className="table-view">
         <div className="table-title">
-          <h2>Sales by Sales Rep - {selectedDivision}</h2>
+          <h2>Sales by Sales Reps - {selectedDivision}</h2>
         </div>
         <div className="table-empty-state">
           <p>❌ {error}</p>
@@ -513,7 +513,7 @@ const SalesBySalesRepDivisional = () => {
     return (
       <div className="table-view">
         <div className="table-title">
-          <h2>Sales by Sales Rep - {selectedDivision}</h2>
+          <h2>Sales by Sales Reps - {selectedDivision}</h2>
         </div>
         <div className="table-empty-state">
           <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -534,7 +534,7 @@ const SalesBySalesRepDivisional = () => {
     return (
       <div className="table-view">
         <div className="table-title">
-          <h2>Sales by Sales Rep - {selectedDivision}</h2>
+          <h2>Sales by Sales Reps - {selectedDivision}</h2>
         </div>
         <div className="table-empty-state">
           <p>Please generate data using the filters to view Sales by Sales Rep.</p>
@@ -548,7 +548,7 @@ const SalesBySalesRepDivisional = () => {
     <div className="table-view">
       <div ref={tableRef} className="table-container-for-export">
         <div className="table-title">
-          <h2>Sales by Sales Rep - {selectedDivision}</h2>
+          <h2>Sales by Sales Reps - {selectedDivision}</h2>
           <div className="table-subtitle">
             <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
               (<UAEDirhamSymbol />)
@@ -589,7 +589,7 @@ const SalesBySalesRepDivisional = () => {
           </div>
         </div>
         <div className="table-container">
-          <table className="sales-by-customer-table">
+          <table className="financial-table">
             <colgroup>
               <col style={{ width: `${columnWidths.salesRep}%` }}/>
             </colgroup>
@@ -636,7 +636,7 @@ const SalesBySalesRepDivisional = () => {
                 })()}
               </tr>
               <tr className="main-header-row">
-                <th className="empty-header" rowSpan="4">Sales Rep</th>
+                <th className="empty-header" rowSpan="4">Sales Reps Names</th>
                 {extendedColumns.map((col, index) =>
                   col.columnType === 'delta' ? (
                     <th key={`delta-year-${index}`} rowSpan="4" style={{ backgroundColor: '#f8f9fa', color: '#000', fontWeight: 'bold' }}>Δ</th>
@@ -716,7 +716,7 @@ const SalesBySalesRepDivisional = () => {
                             className={`metric-cell ${isLastSalesRep ? 'thick-border-bottom' : ''}`}
                             style={{
                               backgroundColor: getCellBackgroundColor(column),
-                              textAlign: 'right',
+                              textAlign: 'center',
                               padding: '8px 4px'
                             }}
                             >
