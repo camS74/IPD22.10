@@ -1355,6 +1355,8 @@ const {
             height: auto;
             min-height: calc(100vh - 80px);
             box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
         
         .full-screen-chart-container {
@@ -2113,7 +2115,21 @@ const {
             top: 72px;
             z-index: 10;
         }
-        
+
+        /* NEW: 6th row - Separator line (frozen with headers) */
+        .sales-customer-table-container thead tr:nth-child(6) th,
+        .sales-customer-table-container thead tr:nth-child(6) td {
+            position: sticky;
+            top: 96px;
+            z-index: 14;
+            height: 3px !important;
+            padding: 0 !important;
+            line-height: 0 !important;
+            background-color: #000000 !important;
+            border: none !important;
+            border-bottom: 3px solid #000000 !important;
+        }
+
         /* First column in frozen headers - white/no border (after hiding star row) */
         .sales-customer-table-container thead tr:nth-child(2) th:first-child,
         .sales-customer-table-container thead tr:nth-child(3) th:first-child,
@@ -2190,6 +2206,9 @@ const {
             white-space: nowrap !important;
             padding: 3px 6px;
             font-size: 11px;
+            will-change: transform;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
         
         /* Freeze header rows - OPTIMIZED for no dead space (after hiding star row) */
@@ -2245,7 +2264,7 @@ const {
         .sales-by-customer-table thead tr:first-child {
             display: none !important;
         }
-        
+
         /* Empty header - main row header (Customer/Country) */
         .sales-by-customer-table th.empty-header {
             background-color: #ffffff;
@@ -2403,6 +2422,9 @@ const {
             white-space: nowrap !important;
             padding: 3px 6px;
             font-size: 11px;
+            will-change: transform;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
         
         /* Freeze header rows - OPTIMIZED for no dead space (after hiding star row) */
@@ -2425,7 +2447,21 @@ const {
             top: 72px;
             z-index: 10;
         }
-        
+
+        /* NEW: 6th row - Separator line (frozen with headers) */
+        .sales-by-country-table thead tr:nth-child(6) th,
+        .sales-by-country-table thead tr:nth-child(6) td {
+            position: sticky;
+            top: 96px;
+            z-index: 14;
+            height: 3px !important;
+            padding: 0 !important;
+            line-height: 0 !important;
+            background-color: #000000 !important;
+            border: none !important;
+            border-bottom: 3px solid #000000 !important;
+        }
+
         /* First column in frozen headers - white/no border (after hiding star row) */
         .sales-by-country-table thead tr:nth-child(2) th:first-child,
         .sales-by-country-table thead tr:nth-child(3) th:first-child,
@@ -2457,7 +2493,7 @@ const {
         .sales-by-country-table thead tr:first-child {
             display: none !important;
         }
-        
+
         /* Empty header - main row header (Country) */
         .sales-by-country-table th.empty-header {
             background-color: #ffffff;
@@ -4442,6 +4478,34 @@ const {
             
             salesCustomerContainer.innerHTML = salesCustomerHTML;
             console.log('Sales by Customer rendered successfully using captured data with proper structure');
+
+            // Inject separator row after the 5th header row
+            var salesCustomerTable = salesCustomerContainer.querySelector('table thead');
+            if (salesCustomerTable) {
+                // Calculate total column count by looking at all colgroups
+                var table = salesCustomerContainer.querySelector('table');
+                var colgroups = table.querySelectorAll('colgroup');
+                var totalCols = 0;
+                colgroups.forEach(function(colgroup) {
+                    totalCols += colgroup.querySelectorAll('col').length;
+                });
+
+                console.log('Total columns detected:', totalCols);
+
+                var separatorRow = document.createElement('tr');
+
+                // Create a single cell that spans all columns
+                var th = document.createElement('th');
+                th.setAttribute('colspan', totalCols);
+                th.style.height = '3px';
+                th.style.padding = '0';
+                th.style.backgroundColor = '#000000';
+                th.style.border = 'none';
+                separatorRow.appendChild(th);
+
+                salesCustomerTable.appendChild(separatorRow);
+                console.log('Separator row injected into Sales by Customer table spanning', totalCols, 'columns');
+            }
         }
 
         // Sales by Sales Rep rendering function - uses captured Sales Rep table data
@@ -4523,6 +4587,34 @@ const {
             
             salesCountryContainer.innerHTML = salesCountryHTML;
             console.log('Sales by Country rendered successfully using captured data with proper structure');
+
+            // Inject separator row after the 5th header row
+            var salesCountryTable = salesCountryContainer.querySelector('table thead');
+            if (salesCountryTable) {
+                // Calculate total column count by looking at all colgroups
+                var table = salesCountryContainer.querySelector('table');
+                var colgroups = table.querySelectorAll('colgroup');
+                var totalCols = 0;
+                colgroups.forEach(function(colgroup) {
+                    totalCols += colgroup.querySelectorAll('col').length;
+                });
+
+                console.log('Total columns detected:', totalCols);
+
+                var separatorRow = document.createElement('tr');
+
+                // Create a single cell that spans all columns
+                var th = document.createElement('th');
+                th.setAttribute('colspan', totalCols);
+                th.style.height = '3px';
+                th.style.padding = '0';
+                th.style.backgroundColor = '#000000';
+                th.style.border = 'none';
+                separatorRow.appendChild(th);
+
+                salesCountryTable.appendChild(separatorRow);
+                console.log('Separator row injected into Sales by Country table spanning', totalCols, 'columns');
+            }
         }
 
         // EXACT same as ExpencesChart + Profitchart - Card-based HTML rendering
