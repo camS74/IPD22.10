@@ -69,7 +69,11 @@ const CustomerInsights = ({ customerSales, avgSalesPerCustomer }) => {
             </div>
           </div>
         )}
-        <div className="kpi-card">
+      </div>
+
+      {/* AVG Sales per Customer - Full width card below */}
+      <div className="kpi-cards" style={{ marginTop: '20px' }}>
+        <div className="kpi-card" style={{ gridColumn: '1 / -1', maxWidth: '400px', margin: '0 auto' }}>
           <div className="kpi-icon">💰</div>
           <div className="kpi-label">AVG Sales per Customer</div>
           <div className="kpi-value">{formatCustomerAvg(avgSalesPerCustomer)}</div>

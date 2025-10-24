@@ -2797,7 +2797,7 @@ const {
     </div>
     
     <div class="container">
-        <!-- Row 1: Divisional KPIs (alone) -->
+        <!-- Divisional KPIs Card Row -->
         <div style="display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 30px; justify-items: center;">
             <div class="chart-card" onclick="showChart('divisional-kpis')" style="max-width: 400px; width: 100%;">
                 <span class="card-icon">📈</span>
@@ -2807,8 +2807,7 @@ const {
                 </div>
             </div>
         </div>
-
-        <!-- Row 2: Chart Cards -->
+        
         <div class="charts-grid">
             <!-- Sales & Volume Analysis Card -->
             <div class="chart-card" onclick="showChart('sales-volume')">
@@ -2818,7 +2817,7 @@ const {
                     Visual analysis of sales revenue and volume trends across different time periods
                 </div>
             </div>
-
+            
             <!-- Margin Analysis Card -->
             <div class="chart-card" onclick="showChart('margin-analysis')">
                 <span class="card-icon">📋</span>
@@ -2827,7 +2826,7 @@ const {
                     Detailed breakdown of profit margins over material costs with trend analysis
                 </div>
             </div>
-
+            
             <!-- Manufacturing Cost Card -->
             <div class="chart-card" onclick="showChart('manufacturing-cost')">
                 <span class="card-icon">🏭</span>
@@ -2836,7 +2835,7 @@ const {
                     Analysis of direct manufacturing costs including materials, labor, and production expenses
                 </div>
             </div>
-
+            
             <!-- Below GP Expenses Card -->
             <div class="chart-card" onclick="showChart('below-gp-expenses')">
                 <span class="card-icon">📊</span>
@@ -2845,7 +2844,7 @@ const {
                     Operating expenses below gross profit including administrative and selling costs
                 </div>
             </div>
-
+            
             <!-- Combined Trends Card -->
             <div class="chart-card" onclick="showChart('combined-trends')">
                 <span class="card-icon">📈</span>
@@ -2855,8 +2854,8 @@ const {
                 </div>
             </div>
         </div>
-
-        <!-- Row 3: Table Cards -->
+        
+        <!-- P&L Financial, Product Group, Sales by Sales Rep, Sales by Customer, and Sales by Country Card Row -->
         <div class="charts-grid" style="margin-top: 30px; margin-bottom: 60px;">
             <div class="chart-card" onclick="showChart('pl-financial')">
                 <span class="card-icon">💰</span>

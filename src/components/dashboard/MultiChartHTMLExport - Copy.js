@@ -627,86 +627,6 @@ const {
     return Promise.resolve();
   };
 
-  // ⚠️ ROBUST KPI READINESS - Validate actual numeric data, not just spinner gone
-  async function waitForKpiNumbers({
-    containerSelector = '.kpi-dashboard',
-    valueSelectors = ['.kpi-value', '.metric-value', '[data-kpi-value]'],
-    minCount = 3,  // Reduced from 5 - more lenient
-    minNumericRatio = 0.6,  // Reduced from 0.8 - allow 60% numeric values
-    maxTries = 10,
-    delayMs = 500
-  } = {}) {
-    for (let i = 1; i <= maxTries; i++) {
-      const root = document.querySelector(containerSelector);
-      if (!root) {
-        console.log(`⏳ Try ${i}/${maxTries}: Container '${containerSelector}' not found`);
-        await new Promise(r => setTimeout(r, delayMs));
-        continue;
-      }
-
-      // Find all KPI value elements
-      const nodes = valueSelectors.flatMap(sel => Array.from(root.querySelectorAll(sel)));
-      const uniqueNodes = Array.from(new Set(nodes));
-      const texts = uniqueNodes.map(n => (n.textContent || '').trim());
-
-      // Enhanced logging - show what we found
-      if (i === 1 || i === maxTries) {
-        console.log(`📊 Try ${i} - Found ${uniqueNodes.length} KPI elements with values:`, texts.slice(0, 10));
-      }
-
-      // Check which texts contain numeric data (allow percentages, currency, negative numbers)
-      const numericFlags = texts.map(t => {
-        // Consider it numeric if it has digits and is not just a placeholder like "Please wait", "-", etc.
-        const hasDigit = /\d/.test(t);
-        const isPlaceholder = /^(please wait|loading|--|—|n\/a|na)$/i.test(t.replace(/\s/g, ''));
-        return hasDigit && !isPlaceholder;
-      });
-
-      const numericCount = numericFlags.filter(Boolean).length;
-
-      // Extract numeric values (handle currency symbols, percentages, commas, negative signs)
-      const numericValues = texts
-        .map(t => {
-          // Remove currency symbols, spaces, commas
-          let cleaned = (t || '').replace(/[,¥€£$₽₹₪₩₫₨₴₸₼₾₿\s%]/g, '');
-          // Handle negative numbers with various dash types
-          cleaned = cleaned.replace(/^[–—−]/, '-');
-          return parseFloat(cleaned);
-        })
-        .filter(v => !Number.isNaN(v) && Number.isFinite(v));
-
-      const hasMin = uniqueNodes.length >= minCount;
-      const ratio = numericFlags.length ? (numericCount / numericFlags.length) : 0;
-      const hasNumbers = numericCount > 0;  // Just need SOME numeric values
-      const notAllZero = numericValues.some(v => Math.abs(v) > 0.001);  // At least one non-zero value
-
-      if (hasMin && ratio >= minNumericRatio && hasNumbers && notAllZero) {
-        console.log(`✅ KPI numeric check passed on try ${i}:`);
-        console.log(`   - Elements found: ${uniqueNodes.length} (min: ${minCount})`);
-        console.log(`   - Numeric values: ${numericCount} of ${texts.length} (${(ratio * 100).toFixed(0)}%)`);
-        console.log(`   - Sample values:`, texts.slice(0, 5));
-        return;
-      }
-
-      console.log(`⏳ KPI numeric check try ${i}/${maxTries}:`);
-      console.log(`   - Elements: ${uniqueNodes.length}/${minCount} ✓`);
-      console.log(`   - Numeric ratio: ${(ratio * 100).toFixed(0)}%/${(minNumericRatio * 100).toFixed(0)}% ${ratio >= minNumericRatio ? '✓' : '✗'}`);
-      console.log(`   - Has numbers: ${hasNumbers ? '✓' : '✗'}`);
-      console.log(`   - Not all zero: ${notAllZero ? '✓' : '✗'}`);
-
-      await new Promise(r => setTimeout(r, delayMs));
-    }
-
-    // Final diagnostic before failing
-    const root = document.querySelector(containerSelector);
-    const nodes = valueSelectors.flatMap(sel => Array.from((root || document).querySelectorAll(sel)));
-    const texts = nodes.map(n => (n.textContent || '').trim());
-    console.error('❌ KPI validation failed after all retries. Final state:');
-    console.error('   - Found values:', texts);
-
-    throw new Error('KPI data not fully loaded: numeric readiness failed. Please keep the KPI tab open a bit longer and try again.');
-  }
-
   const generateOutstandingKPISummary = async () => {
     try {
       // Navigate to KPI tab using the same logic as ensureKPITabActive()
@@ -742,11 +662,6 @@ const {
         }
       }
 
-      // ⚠️ NUMERIC VALIDATION - Ensure KPI values are actually loaded, not just placeholders
-      console.log('🔢 Validating KPI numeric data...');
-      await waitForKpiNumbers();
-      console.log('✅ KPI numeric validation passed!');
-
       // Capture the EXACT HTML from the live KPI component
       const kpiComponent = document.querySelector('.kpi-dashboard');
       if (!kpiComponent) {
@@ -781,55 +696,26 @@ const {
     }
   };
 
-  // ⚠️ TAB RESTORATION HELPERS - Return user to original tab after export
-  function getActiveTabButton() {
-    const tabs = Array.from(document.querySelectorAll('button, [role="tab"]'));
-    return tabs.find(el => el.classList.contains('active') || el.getAttribute('aria-selected') === 'true') || null;
-  }
-
-  async function restoreOriginalTab(originalTabEl, originalTabName) {
-    try {
-      if (originalTabEl && typeof originalTabEl.click === 'function') {
-        console.log('🔄 Restoring original tab:', originalTabName || '(unknown)');
-        originalTabEl.click();
-        await new Promise(r => setTimeout(r, 300));
-      }
-    } catch (e) {
-      console.warn('⚠️ Failed to restore original tab:', e);
-    }
-  }
-
   const handleExport = async () => {
     console.log('🔥🔥🔥 MULTICHART EXPORT STARTED - This should generate 5 cards!');
     setIsExporting(true);
-
-    // ⚠️ EXPORT STATE - Scoped object to avoid localStorage pollution
-    // No cross-tab/state leakage, no cleanup needed
-    const exportState = {
-      hideSalesRep: false,
-      hideBudgetForecast: false,
-      originalTabEl: null,
-      originalTabName: null,
-      startedAt: Date.now()
-    };
-
-    // 📌 CAPTURE ORIGINAL TAB - For restoration after export
-    exportState.originalTabEl = getActiveTabButton();
-    exportState.originalTabName = exportState.originalTabEl?.textContent?.trim() || null;
-    console.log('📌 Original tab captured:', exportState.originalTabName || '(no tab detected)');
-
+    
     // 🚨 CRITICAL: Capture checkbox states RIGHT NOW before switching any tabs!
+    let globalHideSalesRepState = false;
+    let globalHideBudgetForecastState = false;
     console.log('🔍 INITIAL CHECK: Looking for checkboxes on current tab...');
     const initialCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
     for (const checkbox of initialCheckboxes) {
       const label = checkbox.closest('label');
       if (label) {
         if (label.textContent.includes('Hide Sales Rep')) {
-          exportState.hideSalesRep = checkbox.checked;
-          console.log('💾 CAPTURED at start: Hide Sales Rep =', exportState.hideSalesRep);
+          globalHideSalesRepState = checkbox.checked;
+          localStorage.setItem('exportHideSalesRep', globalHideSalesRepState.toString());
+          console.log('💾 CAPTURED at start: Hide Sales Rep =', globalHideSalesRepState);
         } else if (label.textContent.includes('Hide Budget')) {
-          exportState.hideBudgetForecast = checkbox.checked;
-          console.log('💾 CAPTURED at start: Hide Budget & Forecast =', exportState.hideBudgetForecast);
+          globalHideBudgetForecastState = checkbox.checked;
+          localStorage.setItem('exportHideBudgetForecast', globalHideBudgetForecastState.toString());
+          console.log('💾 CAPTURED at start: Hide Budget & Forecast =', globalHideBudgetForecastState);
         }
       }
     }
@@ -1159,10 +1045,11 @@ const {
       // 🎯 Capture live Sales by Customer data
       console.log('🔥 Step: Capturing live Sales by Customer data...');
       let salesCustomerTableHTML = '<div class="placeholder-content"><h3>Sales by Customer</h3><p>Sales by Customer table not available - please visit the Sales by Customer tab first.</p></div>';
-
-      // Read the checkbox state from exportState (no localStorage!)
-      let hideSalesRepState = !!exportState.hideSalesRep;
-      console.log('📖 USING EXPORT STATE: hideSalesRep =', hideSalesRepState);
+      
+      // Read the checkbox state that was captured at the start
+      const savedState = localStorage.getItem('exportHideSalesRep');
+      let hideSalesRepState = savedState === 'true';
+      console.log('📖 USING SAVED STATE: hideSalesRep =', hideSalesRepState);
       
       try {
         await ensureSalesCustomerTabActive();
@@ -1299,10 +1186,11 @@ const {
       // 🎯 Capture live Sales by Country data
       console.log('🔥 Step: Capturing live Sales by Country data...');
       let salesCountryTableHTML = '<div class="placeholder-content"><h3>Sales by Country</h3><p>Sales by Country table not available - please visit the Sales by Country tab first.</p></div>';
-
-      // Read the checkbox state from exportState (no localStorage!)
-      let hideBudgetForecastState = !!exportState.hideBudgetForecast;
-      console.log('📖 USING EXPORT STATE: hideBudgetForecast =', hideBudgetForecastState);
+      
+      // Read the checkbox state that was captured at the start (if exists)
+      const savedBudgetState = localStorage.getItem('exportHideBudgetForecast');
+      let hideBudgetForecastState = savedBudgetState === 'true';
+      console.log('📖 USING SAVED STATE: hideBudgetForecast =', hideBudgetForecastState);
       
       try {
         await ensureSalesCountryTabActive();
@@ -1356,19 +1244,11 @@ const {
     <title>${divisionName} - Comprehensive Report</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script>
-        // Non-destructive fallback - track ECharts availability without wiping page
-        window.__chartsUnavailable = false;
-        window.addEventListener('load', function () {
-            if (typeof echarts === 'undefined') {
-                console.error('⚠️ ECharts failed to load from CDN');
-                window.__chartsUnavailable = true;
-                var banner = document.createElement('div');
-                banner.setAttribute('role', 'status');
-                banner.style.cssText = 'background:#fff3cd;border:2px solid #ffc107;padding:12px 16px;margin:12px;border-radius:8px;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto;';
-                banner.innerHTML = '⚠️ Note: Interactive charts could not be loaded. Tables and KPI data below are still available.';
-                document.body.prepend(banner);
-            }
-        });
+        // Fallback for offline use - if ECharts fails to load from CDN
+        if (typeof echarts === 'undefined') {
+            console.log('ECharts CDN failed to load, charts will not render');
+            // You can embed a minimal chart library here if needed for offline use
+        }
     </script>
     <script>
         // Font detection removed - using SVG-based UAE symbols that render immediately
@@ -2797,7 +2677,7 @@ const {
     </div>
     
     <div class="container">
-        <!-- Row 1: Divisional KPIs (alone) -->
+        <!-- Divisional KPIs Card Row -->
         <div style="display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 30px; justify-items: center;">
             <div class="chart-card" onclick="showChart('divisional-kpis')" style="max-width: 400px; width: 100%;">
                 <span class="card-icon">📈</span>
@@ -2807,8 +2687,7 @@ const {
                 </div>
             </div>
         </div>
-
-        <!-- Row 2: Chart Cards -->
+        
         <div class="charts-grid">
             <!-- Sales & Volume Analysis Card -->
             <div class="chart-card" onclick="showChart('sales-volume')">
@@ -2818,7 +2697,7 @@ const {
                     Visual analysis of sales revenue and volume trends across different time periods
                 </div>
             </div>
-
+            
             <!-- Margin Analysis Card -->
             <div class="chart-card" onclick="showChart('margin-analysis')">
                 <span class="card-icon">📋</span>
@@ -2827,7 +2706,7 @@ const {
                     Detailed breakdown of profit margins over material costs with trend analysis
                 </div>
             </div>
-
+            
             <!-- Manufacturing Cost Card -->
             <div class="chart-card" onclick="showChart('manufacturing-cost')">
                 <span class="card-icon">🏭</span>
@@ -2836,7 +2715,7 @@ const {
                     Analysis of direct manufacturing costs including materials, labor, and production expenses
                 </div>
             </div>
-
+            
             <!-- Below GP Expenses Card -->
             <div class="chart-card" onclick="showChart('below-gp-expenses')">
                 <span class="card-icon">📊</span>
@@ -2845,7 +2724,7 @@ const {
                     Operating expenses below gross profit including administrative and selling costs
                 </div>
             </div>
-
+            
             <!-- Combined Trends Card -->
             <div class="chart-card" onclick="showChart('combined-trends')">
                 <span class="card-icon">📈</span>
@@ -2855,8 +2734,8 @@ const {
                 </div>
             </div>
         </div>
-
-        <!-- Row 3: Table Cards -->
+        
+        <!-- P&L Financial, Product Group, Sales by Sales Rep, Sales by Customer, and Sales by Country Card Row -->
         <div class="charts-grid" style="margin-top: 30px; margin-bottom: 60px;">
             <div class="chart-card" onclick="showChart('pl-financial')">
                 <span class="card-icon">💰</span>
@@ -3148,30 +3027,6 @@ const {
             }
         }
 
-        // ⚠️ NON-DESTRUCTIVE CHART INITIALIZATION HELPER
-        // Returns false if charts unavailable, preventing echarts.init() calls
-        // Shows friendly fallback UI per chart instead of blank/error
-        function initializeChartContainer(containerId, titleText) {
-            var el = document.getElementById(containerId);
-            if (!el) {
-                console.warn('Chart container not found:', containerId);
-                return false;
-            }
-
-            if (!window.echarts || window.__chartsUnavailable) {
-                console.warn('ECharts unavailable for:', titleText);
-                el.innerHTML =
-                    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;padding:24px;background:#fff3cd;border:2px dashed #ffc107;border-radius:8px;">' +
-                        '<div style="font-size:42px;margin-bottom:12px;">📊</div>' +
-                        '<div style="font-size:16px;font-weight:700;color:#856404;margin-bottom:6px;">Chart Unavailable</div>' +
-                        '<div style="font-size:13px;color:#555;text-align:center;">' + titleText + ' could not be rendered.<br/>Your KPI and tables are still included below.</div>' +
-                    '</div>';
-                return false;
-            }
-
-            return true;
-        }
-
         // Show chart function - full screen mode
         // Show specific chart function
         function showChart(chartType) {
@@ -3246,20 +3101,7 @@ const {
                  console.log('Chart DOM not found for:', 'full-' + chartType + '-chart');
                  return;
              }
-
-             // Guard: Check if ECharts is available before proceeding
-             var chartTitles = {
-                 'sales-volume': 'Sales & Volume Analysis',
-                 'margin-analysis': 'Margin Analysis',
-                 'manufacturing-cost': 'Manufacturing Cost',
-                 'below-gp-expenses': 'Below GP Expenses',
-                 'combined-trends': 'Cost & Profitability Trend'
-             };
-
-             if (!initializeChartContainer('full-' + chartType + '-chart', chartTitles[chartType] || chartType)) {
-                 return; // ECharts unavailable, fallback UI already shown
-             }
-
+             
              // Wait for UAESymbol font to load before rendering chart
              setTimeout(function() {
                  var myChart = echarts.init(chartDom, null, { renderer: 'canvas' });
@@ -5413,7 +5255,6 @@ const {
 
         // ⚠️ WAIT FOR ECHARTS TO LOAD BEFORE INITIALIZING DATA
         // Retry mechanism to handle slow CDN loading
-        // ALWAYS calls callback eventually, even if ECharts fails (tables don't need it)
         function waitForECharts(callback, maxAttempts) {
             maxAttempts = maxAttempts || 50;
             var attempts = 0;
@@ -5430,23 +5271,12 @@ const {
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkECharts);
                     console.error('❌ ECharts failed to load after ' + maxAttempts + ' attempts (5 seconds)');
-                    console.warn('⚠️ Charts will not render, but KPI and tables remain available');
-                    window.__chartsUnavailable = true;
-
-                    // Show non-destructive banner if not already shown
-                    if (!document.querySelector('[data-echarts-error-banner]')) {
-                        var banner = document.createElement('div');
-                        banner.setAttribute('role', 'alert');
-                        banner.setAttribute('data-echarts-error-banner', 'true');
-                        banner.style.cssText = 'background:#fff3cd;border:2px solid #ffc107;padding:12px 16px;margin:12px;border-radius:8px;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto;';
-                        banner.innerHTML = '⚠️ Note: Interactive charts could not be loaded (CDN timeout). Tables and KPI data below are still available. ' +
-                            '<button onclick="location.reload()" style="margin-left:12px;padding:6px 12px;font-size:13px;background:#033082;color:white;border:none;border-radius:4px;cursor:pointer;">Retry (Refresh)</button>';
-                        document.body.prepend(banner);
-                    }
-
-                    // Still call callback to render tables/KPIs (they don't need ECharts)
-                    console.log('📊 Proceeding with table/KPI rendering (no ECharts needed)');
-                    callback();
+                    document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; color: #dc3545; font-size: 18px; text-align: center; padding: 20px; flex-direction: column;">' +
+                        '<div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>' +
+                        '<div style="font-weight: bold; margin-bottom: 10px;">Error: Unable to load charts library</div>' +
+                        '<div style="color: #666;">Please check your internet connection and refresh the page.</div>' +
+                        '<button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; background: #033082; color: white; border: none; border-radius: 5px; cursor: pointer;">Refresh Page</button>' +
+                        '</div>';
                 }
             }, 100); // Check every 100ms
         }
@@ -5548,7 +5378,9 @@ const {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      console.log('✅ Download triggered (no localStorage cleanup needed - using scoped exportState)');
+      localStorage.removeItem('exportHideSalesRep'); // Clean up temporary storage
+      localStorage.removeItem('exportHideBudgetForecast'); // Clean up temporary storage
+      console.log('✅ Download triggered and cleanup completed');
       
       console.log('[SUCCESS] Comprehensive Charts HTML export completed successfully');
       
@@ -5556,8 +5388,6 @@ const {
       console.error('[ERROR] Comprehensive Charts export failed:', err);
       alert(`Export failed: ${err.message}`);
     } finally {
-      // Restore original tab before finishing
-      await restoreOriginalTab(exportState.originalTabEl, exportState.originalTabName);
       setIsExporting(false);
     }
   };
