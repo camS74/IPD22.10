@@ -94,15 +94,21 @@ const SalesBySalesRepDivisional = () => {
     const totalDeltaColumns = extendedColumns.length - totalDataColumns;
     const totalColumns = 1 + totalDataColumns + totalDeltaColumns; // 1 for sales rep column
 
-    const salesRepColumnWidth = 20; // 20% for sales rep name
-    const remainingWidth = 80; // 80% for data columns
-    const dataColumnWidth = remainingWidth / totalDataColumns;
+    const salesRepColumnWidth = 18; // 18% for sales rep name
+    const remainingWidth = 82; // 82% for data columns and deltas
+    
+    // Calculate delta width: 4.5% each (reduced by 10%)
+    const deltaWidth = 4.5;
+    const totalDeltaWidth = deltaWidth * totalDeltaColumns;
+    
+    // Remaining width for data columns
+    const dataColumnWidth = (remainingWidth - totalDeltaWidth) / totalDataColumns;
 
     return {
       salesRep: salesRepColumnWidth,
       value: dataColumnWidth * 0.7, // 70% of data column for value
       percent: dataColumnWidth * 0.3, // 30% of data column for percentage
-      delta: dataColumnWidth * 0.5, // 50% of data column for delta
+      delta: deltaWidth, // Fixed 4.5% for delta
       totalColumns
     };
   }, [dataColumnsOnly, extendedColumns]);
@@ -692,7 +698,7 @@ const SalesBySalesRepDivisional = () => {
                         return (
                           <td
                             key={`delta-${columnIndex}`}
-                            className={`metric-cell ${isLastSalesRep ? 'thick-border-bottom' : ''}`}
+                            className={`metric-cell delta-cell ${isLastSalesRep ? 'thick-border-bottom' : ''}`}
                             style={{
                               backgroundColor: '#f8f9fa',
                               color: getDeltaColor(delta),
@@ -756,7 +762,7 @@ const SalesBySalesRepDivisional = () => {
                         const toTotal = toData?.totalSales || 0;
                         const delta = calculateDelta(toTotal, fromTotal);
                         return (
-                          <td key={`total-delta-${idx}`} className="metric-cell summary-cell" style={{ backgroundColor: '#f8f9fa', color: getDeltaColor(delta), fontWeight: 'bold' }}>
+                          <td key={`total-delta-${idx}`} className="metric-cell delta-cell summary-cell" style={{ backgroundColor: '#f8f9fa', color: getDeltaColor(delta), fontWeight: 'bold' }}>
                             {formatDelta(delta)}
                           </td>
                         );

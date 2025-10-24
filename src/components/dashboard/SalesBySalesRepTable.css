@@ -108,7 +108,7 @@ td[class*="delta"] {
 .total-row td.delta-cell {
   font-weight: bold;
   background-color: #FFFFFF !important;
-  font-size: 1rem !important; /* Same font size as regular cells - force override */
+  font-size: 0.875rem !important; /* 14px - 2px smaller than regular 1rem */
   /* color will be set via inline styles in JavaScript */
 }
 
@@ -177,7 +177,7 @@ td[class*="delta"] {
 /* Allow delta cells in total row to use inline color styles */
 .sales-rep-content .financial-table tr.total-row td.delta-cell {
   font-weight: bold;
-  font-size: 1rem !important; /* Ensure same font size as regular cells */
+  font-size: 0.875rem !important; /* 14px - 2px smaller than regular 1rem */
   /* Remove color override to allow inline styles to work */
 }
 
@@ -188,6 +188,7 @@ td[class*="delta"] {
   font-weight: bold;
   text-align: center;
   background-color: #FFFFFF !important;
+  font-size: 0.875rem !important; /* 14px - 2px smaller than regular 1rem */
 }
 
 .delta-arrow {
@@ -253,12 +254,12 @@ td[class*="delta"] {
   text-align: center !important;
 } 
 
-/* Product Group column fixed width - updated */
+/* Product Group column responsive width - controlled by colgroup */
 .sales-rep-content .financial-table th.product-header,
 .sales-rep-content .financial-table td:first-child {
-  width: 516px; /* Increased from 396px by adding 120px from delta columns */
-  min-width: 408px; /* Increased from 288px by adding 120px */
-  max-width: 588px; /* Increased from 468px by adding 120px */
+  /* Width controlled by colgroup in JS */
+  min-width: 408px;
+  max-width: 588px;
   text-align: left;
 }
 
@@ -290,10 +291,10 @@ td[class*="delta"] {
   vertical-align: middle;
 }
 
-/* Period columns fixed width */
+/* Period columns responsive width - controlled by colgroup */
 .sales-rep-content .financial-table th:not(.product-header):not([rowspan]),
 .sales-rep-content .financial-table td.metric-cell:not(.delta-cell) {
-  width: 120px;
+  /* Width controlled by colgroup in JS */
   min-width: 80px;
   max-width: 140px;
   text-align: right;
@@ -305,19 +306,19 @@ td[class*="delta"] {
   font-size: 1rem !important;
 }
 
-/* Delta columns fixed width - REDUCED */
+/* Delta columns responsive width - controlled by colgroup */
 .sales-rep-content .financial-table th[rowspan="3"],
 .sales-rep-content .financial-table td.metric-cell.delta-cell {
-  width: 60px; /* Reduced from 90px to 60px (30px reduction) */
-  min-width: 40px; /* Reduced from 60px to 40px */
-  max-width: 80px; /* Reduced from 110px to 80px */
+  /* Width controlled by colgroup in JS */
+  min-width: 40px;
+  max-width: 80px;
   text-align: right;
 }
 
 /* Ensure total row delta cells are bold with highest specificity */
 .sales-rep-content .financial-table .total-row td.metric-cell.delta-cell {
   font-weight: bold !important;
-  font-size: 1rem !important;
+  font-size: 0.875rem !important; /* 14px - 2px smaller than regular 1rem */
 }
 
 /* Table layout and centering */
@@ -399,7 +400,7 @@ th.product-header[rowspan="3"] {
   width: 90px !important;
   min-width: 60px !important;
   max-width: 110px !important;
-  font-size: 1rem !important; /* Ensure same font size as regular cells */
+  font-size: 0.875rem !important; /* 14px - 2px smaller than regular 1rem */
 }
 
 /* Export button styling */

@@ -101,32 +101,23 @@ const SalesByCustomerTableNew = () => {
     const totalDataColumns = dataColumnsOnly.length;
     const totalDeltaColumns = extendedColumns.length - totalDataColumns;
 
-    const customerWidth = 18; // Customer names width
-    const salesRepWidth = 8; // Sales Rep column width
-    const availableWidth = 74; // Available width for data columns
-    const totalColumns = (totalDataColumns * 2) + totalDeltaColumns;
-
-    let valueColumnWidth, percentColumnWidth, deltaColumnWidth;
-    if (totalDataColumns <= 2) {
-      valueColumnWidth = (availableWidth / totalColumns) * 1.5; // Increased for values
-      percentColumnWidth = (availableWidth / totalColumns) * 0.5; // Reduced for percentages
-      deltaColumnWidth = (availableWidth / totalColumns) * 0.8; // Reduced for delta
-    } else if (totalDataColumns <= 3) {
-      valueColumnWidth = (availableWidth / totalColumns) * 1.4;
-      percentColumnWidth = (availableWidth / totalColumns) * 0.6;
-      deltaColumnWidth = (availableWidth / totalColumns) * 0.7;
-    } else {
-      valueColumnWidth = (availableWidth / totalColumns) * 1.3;
-      percentColumnWidth = (availableWidth / totalColumns) * 0.7;
-      deltaColumnWidth = (availableWidth / totalColumns) * 0.6;
-    }
+    const customerWidth = 16.2; // Customer names width (reduced by 10%)
+    const salesRepWidth = 10.12; // Sales Rep column width (increased by 15%)
+    const availableWidth = 73.68; // Available width for data columns (100% - 16.2% - 10.12%)
+    
+    // Calculate delta width: 4.5% each (reduced by 10%)
+    const deltaWidth = 4.5;
+    const totalDeltaWidth = deltaWidth * totalDeltaColumns;
+    
+    // Remaining width for data columns
+    const dataColumnWidth = (availableWidth - totalDeltaWidth) / totalDataColumns;
 
     return {
       customer: customerWidth,
       salesRep: salesRepWidth,
-      value: valueColumnWidth,
-      percent: percentColumnWidth,
-      delta: deltaColumnWidth
+      value: dataColumnWidth * 0.69, // 69% of data column for value (reduced by 1%)
+      percent: dataColumnWidth * 0.31, // 31% of data column for percentage (increased by 1%)
+      delta: deltaWidth // Fixed 4.5% for delta
     };
   };
 
@@ -740,9 +731,9 @@ const SalesByCustomerTableNew = () => {
                 })()}
               </tr>
               <tr className="main-header-row">
-                <th className="empty-header" rowSpan="4">Customer</th>
+                <th className="empty-header" rowSpan="4" style={{ fontSize: '22px' }}>Customers<br/>Names</th>
                 {!hideSalesRep && (
-                  <th className="sales-rep-header" rowSpan="4" style={{ backgroundColor: '#ffffff', color: '#000000', fontWeight: 'bold', borderTop: 'none', borderLeft: 'none' }}>Sales Rep</th>
+                  <th className="sales-rep-header" rowSpan="4" style={{ backgroundColor: '#ffffff', color: '#000000', fontWeight: 'bold', borderTop: 'none', borderLeft: 'none', fontSize: '22px' }}>Sales Reps<br/><br/>Names</th>
                 )}
                 {extendedColumns.map((col, index) =>
                   col.columnType === 'delta' ? (

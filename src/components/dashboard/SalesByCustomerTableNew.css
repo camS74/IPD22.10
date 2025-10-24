@@ -63,14 +63,15 @@
   background-color: #ffffff !important;
   color: #000000 !important;
   border: none !important;
-  font-size: 12px !important;
+  font-size: 22px !important;
   font-weight: 700 !important;
+  white-space: normal !important; /* Allow line breaks */
 }
 
 /* CUSTOMER TABLE SPECIFIC - Regular row labels (customer names) */
 .sales-by-customer-table .row-label:not(.summary-label) {
   text-align: left !important;
-  background-color: #f8f9fa !important;
+  background-color: #ffffff !important;
   font-weight: 600 !important;
 }
 
@@ -95,8 +96,8 @@
 
 /* Sales Rep header */
 .sales-by-customer-table .sales-rep-header {
-  font-size: 12px !important;
-  white-space: nowrap !important;
+  font-size: 22px !important;
+  white-space: normal !important; /* Allow line breaks */
 }
 
 /* Sales Rep summary cells - ensure white background */

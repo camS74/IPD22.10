@@ -202,11 +202,21 @@ const {
       });
       
       // Remove width constraints from colgroup elements but keep other styling
+      // EXCEPT for Sales Rep table AND Sales by Customer table - preserve their colgroup widths for equal column distribution
       const allColgroups = clonedTable.querySelectorAll('colgroup, col');
+      // Check if this is the Sales Rep table by looking for the first header cell
+      const firstHeader = clonedTable.querySelector('thead tr th.empty-header');
+      const isSalesRepTable = firstHeader && firstHeader.textContent?.includes('Sales Rep');
+      // Check if this is the Sales by Customer table by checking table class
+      const isSalesByCustomerTable = clonedTable.classList.contains('sales-by-customer-table');
+      
       allColgroups.forEach(col => {
-        col.style.removeProperty('width');
-        col.style.removeProperty('min-width');
-        col.style.removeProperty('max-width');
+        // Don't remove width from Sales Rep table or Sales by Customer table colgroups
+        if (!isSalesRepTable && !isSalesByCustomerTable) {
+          col.style.removeProperty('width');
+          col.style.removeProperty('min-width');
+          col.style.removeProperty('max-width');
+        }
         // Keep other styling
       });
       
@@ -457,7 +467,7 @@ const {
       allCells.forEach(cell => {
         const text = cell.textContent?.trim();
         if (text === 'Country') {
-          cell.textContent = 'Countries';
+          cell.textContent = 'Country Names';
         }
       });
       return clonedTable.outerHTML;
@@ -1295,6 +1305,11 @@ const {
             text-align: center !important;
         }
         
+        /* Delta cells - smaller font size */
+        .sales-rep-table-container .delta-cell {
+            font-size: 0.875rem !important; /* 14px - 2px smaller than regular 1rem */
+        }
+        
         /* Add borders to Sales Reps table */
         .sales-rep-table-container table {
             border-collapse: collapse !important;
@@ -2073,6 +2088,42 @@ const {
             margin: 0 auto;
         }
         
+        /* Hide the first row (star row) in Sales by Customer table */
+        .sales-customer-table-container thead tr:first-child {
+            display: none !important;
+        }
+        
+        /* Freeze header rows - OPTIMIZED for no dead space (after hiding star row) */
+        .sales-customer-table-container thead tr:nth-child(2) th {
+            top: 0px;
+            z-index: 13;
+        }
+        
+        .sales-customer-table-container thead tr:nth-child(3) th {
+            top: 24px;
+            z-index: 12;
+        }
+        
+        .sales-customer-table-container thead tr:nth-child(4) th {
+            top: 48px;
+            z-index: 11;
+        }
+        
+        .sales-customer-table-container thead tr:nth-child(5) th {
+            top: 72px;
+            z-index: 10;
+        }
+        
+        /* First column in frozen headers - white/no border (after hiding star row) */
+        .sales-customer-table-container thead tr:nth-child(2) th:first-child,
+        .sales-customer-table-container thead tr:nth-child(3) th:first-child,
+        .sales-customer-table-container thead tr:nth-child(4) th:first-child,
+        .sales-customer-table-container thead tr:nth-child(5) th:first-child {
+            background-color: white;
+            border: none;
+            white-space: normal !important; /* Allow line breaks */
+        }
+        
         /* Table Title Container */
         .sales-customer-table-title-container {
             padding: 20px 20px 10px 20px;
@@ -2101,40 +2152,31 @@ const {
             text-overflow: ellipsis;
         }
         
-        /* Override colgroup widths for better proportions */
-        .sales-by-customer-table colgroup col {
-            width: auto !important;
+        /* Note: colgroup widths are set individually below for better control */
+        
+        /* Sales by Customer Table - table layout for colgroup widths */
+        .sales-by-customer-table {
+            table-layout: fixed !important;
+            width: 100% !important;
         }
         
-        /* Customer column - 18% */
+        /* Customer column - 16.2% (reduced by 10%) */
         .sales-by-customer-table colgroup:first-child col:first-child {
-            width: 18% !important;
+            width: 16.2% !important;
         }
         
-        /* Sales Rep column - 8% */
+        /* Sales Rep column - 10.12% (increased by 15%) */
         .sales-by-customer-table colgroup:first-child col:nth-child(2) {
-            width: 8% !important;
+            width: 10.12% !important;
         }
         
-        /* Override for Sales by Sales Rep table - narrower first column */
-        .sales-rep-table-container .sales-by-customer-table colgroup:first-child col:first-child {
-            width: 12% !important;
-        }
+        /* Note: Period and delta widths are controlled by inline styles from the captured table */
         
-        /* For data columns in each period colgroup */
-        /* Values column - slightly narrower */
-        .sales-by-customer-table colgroup:not(:first-child) col:first-child {
-            width: 7% !important;
-        }
-        
-        /* Percent column */
-        .sales-by-customer-table colgroup:not(:first-child) col:nth-child(2) {
-            width: 4% !important;
-        }
-        
-        /* Delta columns (single col in colgroup) - wider to fit -100% */
-        .sales-by-customer-table colgroup:not(:first-child) col:only-child {
-            width: 5.5% !important;
+        /* Sales Rep table specific - equal widths for all periods */
+        /* Don't override widths - let the inline styles from the captured table work */
+        .sales-rep-table-container .financial-table {
+            table-layout: fixed !important;
+            width: 100% !important;
         }
         
         /* Header row heights and freeze - REDUCED for more screen space */
@@ -2150,34 +2192,35 @@ const {
             font-size: 11px;
         }
         
-        /* Freeze header rows - OPTIMIZED for no dead space */
-        .sales-by-customer-table thead tr:nth-child(1) th {
+        /* Freeze header rows - OPTIMIZED for no dead space (after hiding star row) */
+        .sales-by-customer-table thead tr:nth-child(2) th {
             top: 0px;
             z-index: 13;
         }
         
-        .sales-by-customer-table thead tr:nth-child(2) th {
+        .sales-by-customer-table thead tr:nth-child(3) th {
             top: 24px;
             z-index: 12;
         }
         
-        .sales-by-customer-table thead tr:nth-child(3) th {
+        .sales-by-customer-table thead tr:nth-child(4) th {
             top: 48px;
             z-index: 11;
         }
         
-        .sales-by-customer-table thead tr:nth-child(4) th {
+        .sales-by-customer-table thead tr:nth-child(5) th {
             top: 72px;
             z-index: 10;
         }
         
-        /* First column in frozen headers - white/no border */
-        .sales-by-customer-table thead tr:nth-child(1) th:first-child,
+        /* First column in frozen headers - white/no border (after hiding star row) */
         .sales-by-customer-table thead tr:nth-child(2) th:first-child,
         .sales-by-customer-table thead tr:nth-child(3) th:first-child,
-        .sales-by-customer-table thead tr:nth-child(4) th:first-child {
+        .sales-by-customer-table thead tr:nth-child(4) th:first-child,
+        .sales-by-customer-table thead tr:nth-child(5) th:first-child {
             background-color: white;
             border: none;
+            white-space: normal !important; /* Allow line breaks */
         }
         
         /* Ensure borders on colored headers */
@@ -2198,6 +2241,11 @@ const {
             background-color: #ffffff !important;
         }
         
+        /* Hide the first row (star row) in Sales by Customer table */
+        .sales-by-customer-table thead tr:first-child {
+            display: none !important;
+        }
+        
         /* Empty header - main row header (Customer/Country) */
         .sales-by-customer-table th.empty-header {
             background-color: #ffffff;
@@ -2207,6 +2255,8 @@ const {
             line-height: 24px !important;
             padding: 3px 6px !important;
             vertical-align: middle !important;
+            font-size: 22px !important;
+            white-space: normal !important; /* Allow line breaks */
         }
         
         /* Row labels - left aligned */
@@ -2217,7 +2267,7 @@ const {
         /* Customer name cells */
         .sales-by-customer-table .customer-name-cell {
             text-align: left;
-            background-color: #f8f9fa;
+            background-color: #ffffff;
             font-weight: 600;
         }
         
@@ -2232,6 +2282,8 @@ const {
         .sales-by-customer-table .sales-rep-header {
             border-top: none;
             border-left: none;
+            white-space: normal !important; /* Allow line breaks */
+            font-size: 22px !important;
         }
         
         /* Summary rows */
@@ -2270,16 +2322,11 @@ const {
             border-bottom: 4px solid #333 !important;
         }
 
-        /* Double font size ONLY for the very first cell containing "Customers"/"Sales Reps" text */
-        .sales-by-customer-table tbody tr:first-child td:first-child {
-            font-size: 28px !important;
-        }
-
         /* Sales by Country Table - EXACT same approach as Sales by Customer */
 
-        /* Double font size ONLY for the very first cell containing "Countries" text */
-        .sales-by-country-table tbody tr:first-child td:first-child {
-            font-size: 28px !important;
+        /* Set font size for "Country Names" header text */
+        .sales-by-country-table th.empty-header {
+            font-size: 22px !important;
         }
 
         /* Table Container */
@@ -2358,32 +2405,32 @@ const {
             font-size: 11px;
         }
         
-        /* Freeze header rows - OPTIMIZED for no dead space */
-        .sales-by-country-table thead tr:nth-child(1) th {
+        /* Freeze header rows - OPTIMIZED for no dead space (after hiding star row) */
+        .sales-by-country-table thead tr:nth-child(2) th {
             top: 0px;
             z-index: 13;
         }
         
-        .sales-by-country-table thead tr:nth-child(2) th {
+        .sales-by-country-table thead tr:nth-child(3) th {
             top: 24px;
             z-index: 12;
         }
         
-        .sales-by-country-table thead tr:nth-child(3) th {
+        .sales-by-country-table thead tr:nth-child(4) th {
             top: 48px;
             z-index: 11;
         }
         
-        .sales-by-country-table thead tr:nth-child(4) th {
+        .sales-by-country-table thead tr:nth-child(5) th {
             top: 72px;
             z-index: 10;
         }
         
-        /* First column in frozen headers - white/no border */
-        .sales-by-country-table thead tr:nth-child(1) th:first-child,
+        /* First column in frozen headers - white/no border (after hiding star row) */
         .sales-by-country-table thead tr:nth-child(2) th:first-child,
         .sales-by-country-table thead tr:nth-child(3) th:first-child,
-        .sales-by-country-table thead tr:nth-child(4) th:first-child {
+        .sales-by-country-table thead tr:nth-child(4) th:first-child,
+        .sales-by-country-table thead tr:nth-child(5) th:first-child {
             background-color: white;
             border: none;
         }
@@ -2406,6 +2453,11 @@ const {
             background-color: #ffffff !important;
         }
         
+        /* Hide the first row (star row) in Sales by Country table */
+        .sales-by-country-table thead tr:first-child {
+            display: none !important;
+        }
+        
         /* Empty header - main row header (Country) */
         .sales-by-country-table th.empty-header {
             background-color: #ffffff;
@@ -2426,7 +2478,13 @@ const {
         .sales-by-country-table .country-name-cell {
             text-align: left;
             background-color: #f8f9fa;
-            font-weight: 600;
+            font-weight: bold;
+        }
+        
+        /* All country names should be bold and normal font size */
+        .sales-by-country-table tbody td:first-child {
+            font-weight: bold !important;
+            font-size: 12px !important;
         }
         
         /* Summary rows */
@@ -4401,7 +4459,7 @@ const {
             
             var headerTitleElement = document.getElementById('sales-rep-header-title');
             if (headerTitleElement) {
-                headerTitleElement.textContent = 'Sales by Sales Reps Names';
+                headerTitleElement.textContent = 'Sales by Sales Reps';
             }
             
             var salesRepHTML = '<div class="sales-rep-table-container">' +
